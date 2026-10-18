@@ -48,13 +48,6 @@ button{font-family:inherit;color:inherit;background:none;border:0;cursor:pointer
 /* ── 布局 ─────────────────────────────── */
 .wrap{width:100%;max-width:var(--maxw);margin:0 auto;padding:0 28px}
 .sec{position:relative;padding:clamp(88px,13vw,180px) 0}
-.ghost-num{
-  position:absolute;right:-2vw;top:0;z-index:0;pointer-events:none;
-  font-size:clamp(160px,30vw,420px);font-weight:900;line-height:.78;
-  letter-spacing:-.06em;color:transparent;
-  -webkit-text-stroke:1.5px rgba(255,255,255,.07);
-  user-select:none;
-}
 .sec-inner{position:relative;z-index:1}
 
 /* ── 导航 ─────────────────────────────── */
@@ -82,6 +75,14 @@ button{font-family:inherit;color:inherit;background:none;border:0;cursor:pointer
   border:1px solid var(--line2);transition:.28s;
 }
 .nav-cta:hover{background:var(--ink);color:#000;border-color:var(--ink)}
+/* GitHub 图标按钮 */
+.gh-icon{
+  margin-left:8px;width:34px;height:34px;border-radius:9px;flex:none;
+  display:grid;place-items:center;border:1px solid var(--line2);
+  color:var(--ink2);transition:.28s;
+}
+.gh-icon svg{width:17px;height:17px;fill:currentColor}
+.gh-icon:hover{background:var(--ink);color:#000;border-color:var(--ink);transform:translateY(-1px)}
 @media(max-width:860px){.nav-links{display:none}}
 
 /* ── Hero ─────────────────────────────── */
@@ -316,30 +317,7 @@ h2.wide{max-width:24ch}
 .seg button.on{background:rgba(255,255,255,.1);color:var(--ink)}
 .ctl-lab{font-size:12px;color:var(--muted);margin-right:2px}
 .stage-ctl .verdict{margin-left:auto;font-family:var(--fm);font-size:11.5px;color:var(--ok)}
-
-/* ── 对比表 ───────────────────────────── */
-.cmp{border:1px solid var(--line);border-radius:20px;overflow:hidden;background:rgba(255,255,255,.02)}
-.cmp-row{
-  display:grid;grid-template-columns:1.15fr .95fr 1.15fr;gap:0;
-  border-bottom:1px solid var(--line);transition:background .3s;
-}
-.cmp-row:last-child{border-bottom:0}
-.cmp-row.head{background:rgba(255,255,255,.035)}
-.cmp-row:not(.head):hover{background:rgba(255,255,255,.028)}
-.cmp-row>div{padding:18px 22px;font-size:14.5px;display:flex;align-items:center;gap:10px}
-.cmp-row>div:first-child{color:var(--muted);font-size:14px}
-.cmp-row>div:nth-child(2){color:var(--muted);background:rgba(0,0,0,.16)}
-.cmp-row>div:last-child{color:var(--ink);font-weight:500}
-.cmp-row.head>div{font-family:var(--fm);font-size:11.5px;letter-spacing:.14em;color:var(--muted);padding-top:14px;padding-bottom:14px}
-.cmp-row.head>div:last-child{color:var(--acc2)}
-.mark{width:17px;height:17px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700;flex:none;font-family:var(--fm)}
-.mk-y{background:rgba(74,222,128,.16);color:var(--ok)}
-.mk-n{background:rgba(255,107,107,.14);color:var(--bad)}
 @media(max-width:820px){
-  .cmp-row{grid-template-columns:1fr 1fr}
-  .cmp-row>div:first-child{grid-column:1/-1;padding-bottom:2px;font-size:12.5px;color:var(--ink2);font-family:var(--fm);letter-spacing:.06em}
-  .cmp-row.head{display:none}
-  .cmp-row>div{padding:12px 16px;font-size:13.5px}
 }
 
 /* ── 守卫卡片 ─────────────────────────── */
@@ -364,41 +342,9 @@ h2.wide{max-width:24ch}
 .card h3{font-size:18.5px;font-weight:650;letter-spacing:-.015em;margin-bottom:10px}
 .card p{font-size:14.5px;color:var(--muted);line-height:1.72}
 .card .chk{margin-top:16px;font-family:var(--fm);font-size:11px;color:var(--ok);letter-spacing:.06em}
+@media(max-width:880px){}
+@media(max-width:760px){}
 
-/* ── 数字 ─────────────────────────────── */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:20px;overflow:hidden;margin-top:56px}
-@media(max-width:880px){.stats{grid-template-columns:repeat(2,1fr)}}
-.stat{background:var(--bg);padding:34px 26px;transition:background .4s;position:relative}
-.stat:hover{background:var(--bg2)}
-.stat .n{font-size:clamp(34px,4.4vw,54px);font-weight:750;letter-spacing:-.04em;line-height:1;font-family:var(--fm)}
-.stat .n .u{font-size:.42em;color:var(--muted);margin-left:3px;letter-spacing:0}
-.stat .l{font-size:13px;color:var(--muted);margin-top:12px}
-.stat .s{font-size:11px;font-family:var(--fm);margin-top:9px;color:var(--ok)}
-.stat:nth-child(1) .n{color:var(--acc)}
-.stat:nth-child(2) .n{color:var(--acc2)}
-.stat:nth-child(3) .n{color:var(--ink)}
-.stat:nth-child(4) .n{color:var(--warn)}
-
-/* ── 契约流水线 ───────────────────────── */
-.pipe{margin-top:54px;display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:18px;overflow:hidden}
-@media(max-width:760px){.pipe{grid-template-columns:1fr}}
-.step{
-  background:var(--bg);padding:16px 20px;display:flex;align-items:center;gap:14px;
-  transition:background .3s;position:relative;
-}
-.step:hover{background:var(--bg2)}
-.step .i{
-  width:26px;height:26px;border-radius:7px;display:grid;place-items:center;flex:none;
-  font-family:var(--fm);font-size:11px;font-weight:600;
-  background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--line);
-  transition:.3s;
-}
-.step.guard .i{background:rgba(255,180,84,.12);color:var(--warn);border-color:rgba(255,180,84,.28)}
-.step.act .i{background:rgba(74,222,128,.13);color:var(--ok);border-color:rgba(74,222,128,.3)}
-.step.act:hover .i{background:var(--ok);color:#04120a;border-color:var(--ok)}
-.step .t{font-size:13.5px;color:var(--ink2);flex:1}
-.step:hover .t{color:var(--ink)}
-.step .b{font-family:var(--fm);font-size:11px;color:var(--muted)}
 .pipe-note{margin-top:22px;font-size:13.5px;color:var(--muted);line-height:1.75;max-width:70ch}
 .pipe-note b{color:var(--ink2);font-weight:600}
 
@@ -456,62 +402,8 @@ h2.wide{max-width:24ch}
 .diag-term .v{color:var(--ink2)}
 .diag-term .ok{color:var(--ok)}
 .diag-term .no{color:var(--muted);opacity:.6}
-
-/* ── GitHub 区 ────────────────────────── */
-.gh{
-  border:1px solid var(--line2);border-radius:22px;overflow:hidden;
-  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.008));
-}
-.gh-top{
-  display:flex;align-items:center;gap:12px;padding:18px 22px;border-bottom:1px solid var(--line);
-  background:rgba(0,0,0,.3);flex-wrap:wrap;
-}
-.gh-ico{width:34px;height:34px;border-radius:9px}
-.gh-repo{font-size:15px;font-weight:600;letter-spacing:-.01em}
-.gh-repo span{color:var(--muted);font-weight:400}
-.gh-badge{
-  font-size:11px;font-family:var(--fm);padding:3px 9px;border-radius:6px;
-  border:1px solid var(--line);color:var(--muted);
-}
-.gh-badge.swift{color:#ff7b4f;border-color:rgba(255,123,79,.35);background:rgba(255,123,79,.08)}
-.gh-badge.mac{color:var(--ink2)}
-.gh-top .gh-actions{margin-left:auto;display:flex;gap:9px}
-.gh-btn{display:flex;align-items:center;gap:7px;padding:7px 14px;border:1px solid var(--line2);border-radius:9px;font-size:13px;transition:.25s;font-weight:500}
-.gh-btn:hover{background:rgba(255,255,255,.1)}
-.gh-btn svg{width:14px;height:14px;fill:currentColor}
-.gh-body{padding:30px 26px;display:grid;grid-template-columns:1fr 250px;gap:40px}
-@media(max-width:860px){.gh-body{grid-template-columns:1fr;gap:30px}}
-.gh-readme h3{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:14px;display:flex;align-items:center;gap:10px}
-.gh-readme h3 img{width:26px;height:26px;border-radius:7px}
-.gh-readme p{font-size:15px;color:var(--ink2);margin-bottom:16px;line-height:1.75}
-.gh-readme pre{
-  padding:18px 20px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.5);
-  font-family:var(--fm);font-size:12.5px;overflow-x:auto;margin-bottom:16px;line-height:1.9;
-}
-.gh-readme pre .c{color:#4a4a56}
-.gh-readme pre .g{color:var(--ok)}
-.gh-side{display:flex;flex-direction:column;gap:20px}
-.gh-card{padding:18px;border-radius:14px;border:1px solid var(--line);background:rgba(0,0,0,.24)}
-.gh-card h5{font-size:11.5px;font-family:var(--fm);letter-spacing:.14em;color:var(--muted);margin-bottom:14px;font-weight:500}
-.lang{display:flex;flex-direction:column;gap:9px}
-.lang div{display:flex;align-items:center;gap:9px;font-size:12.5px}
-.lang i{width:9px;height:9px;border-radius:50%;flex:none}
-.lang .bar{flex:1;height:4px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden}
-.lang .bar u{display:block;height:100%;border-radius:3px}
-.lang .pc{font-family:var(--fm);font-size:11px;color:var(--muted);width:34px;text-align:right}
-.tree{font-family:var(--fm);font-size:11.5px;line-height:2.1;color:var(--muted)}
-.tree b{color:var(--ink2);font-weight:500}
-.tree .d{color:#4a4a56}
-
-/* ── 安装步骤 ─────────────────────────── */
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-top:52px}
-@media(max-width:880px){.steps{grid-template-columns:1fr}}
-.stepbox{background:var(--bg);padding:30px 26px;transition:background .4s;position:relative}
-.stepbox:hover{background:var(--bg2)}
-.stepbox .n{font-family:var(--fm);font-size:11px;color:var(--acc2);letter-spacing:.16em;margin-bottom:14px}
-.stepbox h3{font-size:17.5px;font-weight:650;margin-bottom:10px;letter-spacing:-.015em}
-.stepbox p{font-size:14px;color:var(--muted);line-height:1.7}
-.stepbox code{display:block;margin-top:16px;padding:11px 13px;border-radius:9px;background:rgba(0,0,0,.55);border:1px solid var(--line);font-family:var(--fm);font-size:11.5px;color:var(--acc2);overflow-x:auto;white-space:nowrap}
+@media(max-width:860px){}
+@media(max-width:880px){}
 
 /* ── CTA ──────────────────────────────── */
 .cta{
@@ -557,10 +449,12 @@ footer{border-top:1px solid var(--line);padding:40px 0;position:relative}
       <a href="#why">为什么</a>
       <a href="#demo">演示</a>
       <a href="#guards">守卫</a>
-      <a href="#how">原理</a>
-      <a href="#code">源码</a>
+      <a href="#perm">权限</a>
     </nav>
-    <a class="nav-cta" href="#install">安装</a>
+    <a class="gh-icon" href="https://github.com/djjjs22/HoverFocus" target="_blank" rel="noopener" title="GitHub · djjjs22/HoverFocus" aria-label="GitHub 仓库">
+      <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+    </a>
+    <a class="nav-cta" href="https://github.com/djjjs22/HoverFocus/releases/latest" target="_blank" rel="noopener">下载</a>
   </div>
 </div>
 
@@ -581,11 +475,11 @@ footer{border-top:1px solid var(--line);padding:40px 0;position:relative}
           HoverFocus 把这一步去掉：<b>鼠标停在哪个窗口，键盘焦点就切到哪个窗口</b>。
         </p>
         <div class="cta-row rv rv-d3">
-          <a class="btn btn-p" href="#install">
+          <a class="btn btn-p" href="https://github.com/djjjs22/HoverFocus/releases/latest" target="_blank" rel="noopener">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.5a.75.75 0 0 1 .75.75v7.19l2.22-2.22a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06l2.22 2.22V2.25A.75.75 0 0 1 8 1.5ZM3 12a.75.75 0 0 1 .75.75v1.5h8.5v-1.5a.75.75 0 0 1 1.5 0v1.75A1.25 1.25 0 0 1 12.5 16h-9A1.25 1.25 0 0 1 2.25 14.5v-1.75A.75.75 0 0 1 3 12Z"/></svg>
             立即安装
           </a>
-          <a class="btn btn-g" href="#code">
+          <a class="btn btn-g" href="https://github.com/djjjs22/HoverFocus" target="_blank" rel="noopener">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.72 3.22a.75.75 0 0 1 1.06 1.06L2.56 8l3.22 3.72a.75.75 0 1 1-1.06 1.06l-3.75-4.33a.75.75 0 0 1 0-1.06l3.75-4.33Zm6.56 0a.75.75 0 0 0-1.06 0L6.47 7.55a.75.75 0 0 0 0 1.06l3.75 4.33a.75.75 0 0 0 1.06-1.06L8.06 8l3.22-3.72a.75.75 0 0 0 0-1.06Z"/></svg>
             看源码
           </a>
@@ -621,7 +515,7 @@ footer{border-top:1px solid var(--line);padding:40px 0;position:relative}
           但这一下点击顺手做了两件你未必想要的事：把窗口<b>置顶</b>，以及在你正在拖拽窗口、或正在表格里改一个文件名的时候<b>把焦点抢走</b>。
         </p>
         <p class="lede rv">
-          市面上的 AutoFocus 类工具用「悬停即置顶」来解决这个问题，于是你得到了另一个 bug 集合。
+          悬停切焦点很容易被顺手做成「顺便把窗口顶上来」，于是问题换了个样子出现。
           HoverFocus 的做法是拆开这两件事：<b>焦点归焦点，叠放归叠放</b>。
         </p>
         <div class="cta-row rv rv-d2" style="margin-top:34px">
@@ -782,85 +676,9 @@ footer{border-top:1px solid var(--line);padding:40px 0;position:relative}
   </div>
 </section>
 
-<!-- ══════════ 数字 ══════════ -->
-<section class="sec" id="numbers">
-  <div class="wrap sec-inner">
-    <span class="kicker rv">Measured</span>
-    <h2 class="rv wide">下面每个数字都有出处</h2>
-    <p class="lede rv">
-      我们有一份独立的验证报告，每个结论都标了三种状态之一 ——
-      <b>实测通过</b>（本机真实系统跑出来的，可复现）、<b>仅单测覆盖</b>（有替身，没有真机）、<b>未验证</b>（明说没测）。
-      报告里不把「没测的」写成「通过」。
-    </p>
-
-    <div class="stats">
-      <div class="stat rv">
-        <div class="n" data-count="116" data-suffix="">0</div>
-        <div class="l">单元测试用例</div>
-        <div class="s">279 断言 · 0 失败 · 1 跳过</div>
-      </div>
-      <div class="stat rv rv-d1">
-        <div class="n" data-count="38" data-suffix="×">0</div>
-        <div class="l">动作路径提速</div>
-        <div class="s">33.31ms → 0.74ms 中位</div>
-      </div>
-      <div class="stat rv rv-d2">
-        <div class="n" data-count="3" data-suffix="/3">0</div>
-        <div class="l">端到端悬停测试</div>
-        <div class="s">连跑三轮 · z 序 1 → 1</div>
-      </div>
-      <div class="stat rv rv-d3">
-        <div class="n" data-count="5" data-suffix="">0</div>
-        <div class="l">抓到的真 bug</div>
-        <div class="s">全部已修并补了回归</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════ 契约 ══════════ -->
-<section class="sec" id="how">
-  <div class="ghost-num">04</div>
-  <div class="wrap sec-inner">
-    <span class="kicker rv">The Contract</span>
-    <h2 class="rv wide">17 步判定顺序，一格都不能错</h2>
-    <p class="lede rv">
-      每个 tick 只走一条路。顺序错了用户就会看到「明明关了却显示开启」或者「明明异常却显示正常」——
-      这类 bug 不会崩，只会一直错着。测试运行器内置覆盖门：任何一步没有用例，脚本直接 exit 1。
-    </p>
-
-    <div class="pipe">
-      <div class="step"><span class="i">1</span><span class="t">总开关关闭</span><span class="b">.disabled</span></div>
-      <div class="step guard"><span class="i">2</span><span class="t">正在拖拽</span><span class="b">.dragging</span></div>
-      <div class="step guard"><span class="i">3</span><span class="t">按住修饰键</span><span class="b">.modifiersHeld</span></div>
-      <div class="step guard"><span class="i">3.5</span><span class="t">单行文本编辑中</span><span class="b">.textEditing</span></div>
-      <div class="step"><span class="i">4</span><span class="t">指针在菜单栏</span><span class="b">.inMenuBar</span></div>
-      <div class="step"><span class="i">5</span><span class="t">指针下没有窗口</span><span class="b">.noWindow</span></div>
-      <div class="step guard"><span class="i">6</span><span class="t">不在当前 Space</span><span class="b">.notOnScreen</span></div>
-      <div class="step"><span class="i">7</span><span class="t">HoverFocus 自己</span><span class="b">.ownApp</span></div>
-      <div class="step"><span class="i">8</span><span class="t">系统 UI</span><span class="b">.systemUI</span></div>
-      <div class="step"><span class="i">9</span><span class="t">目标 App 被隐藏</span><span class="b">.hiddenApp</span></div>
-      <div class="step guard"><span class="i">10</span><span class="t">命中排除名单</span><span class="b">.excludedApp</span></div>
-      <div class="step guard"><span class="i">11</span><span class="t">前台 App 全屏</span><span class="b">.fullScreenBlocked</span></div>
-      <div class="step"><span class="i">12</span><span class="t">已经是当前焦点窗口</span><span class="b">.sameWindow</span></div>
-      <div class="step"><span class="i">13</span><span class="t">冷却中</span><span class="b">.cooldown</span></div>
-      <div class="step"><span class="i">14</span><span class="t">换目标则重置计时</span><span class="b">.resetPending</span></div>
-      <div class="step"><span class="i">15</span><span class="t">dwell 未到点</span><span class="b">.dwellPending</span></div>
-      <div class="step act"><span class="i">16</span><span class="t">到点，执行</span><span class="b">.act</span></div>
-    </div>
-
-    <p class="pipe-note rv">
-      <b>三个容易写反的地方。</b>
-      第 12 步必须早于 13 和 14 —— 否则已经聚焦的窗口会反复计时、反复动作。
-      第 1–5 步任何 return 都要清掉 dwell 计时，否则「窗口↔菜单栏来回划 6 次、每次都不足 dwell」会累计凑满并误抢。
-      冷却下限是 <b>0.06s</b> 不是 0 —— 窗口探测有 50ms 缓存，冷却太小会出现同一个窗口被反复聚焦的动作风暴。
-    </p>
-  </div>
-</section>
-
 <!-- ══════════ 权限 ══════════ -->
 <section class="sec" id="perm">
-  <div class="ghost-num">05</div>
+  <div class="ghost-num">04</div>
   <div class="wrap sec-inner">
     <span class="kicker rv">Permissions</span>
     <h2 class="rv wide">默认零权限。不是「可以不授权」，是根本不需要</h2>
@@ -916,8 +734,10 @@ footer{border-top:1px solid var(--line);padding:40px 0;position:relative}
     </div>
 
     <p class="pipe-note rv" style="margin-top:18px">
-      <b>install.sh 不会碰 <code style="font-family:var(--fm)">/Applications/AutoFocus.app</code>。</b>
-      脚本只操作 HoverFocus.app，已存在的旧版本会先备份成 .bak。想装完不自动启动就加 <code style="font-family:var(--fm)">--no-launch</code>，不想被问就加 <code style="font-family:var(--fm)">--yes</code>。
+      <b>安装脚本很克制。</b>
+      只操作 <code style="font-family:var(--fm)">HoverFocus.app</code>，不碰其他 app；
+      已存在的旧版本会先备份成 <code style="font-family:var(--fm)">.bak</code>。
+      想装完不自动启动就加 <code style="font-family:var(--fm)">--no-launch</code>，不想被问就加 <code style="font-family:var(--fm)">--yes</code>。
     </p>
   </div>
 </section>
@@ -967,129 +787,14 @@ footer{border-top:1px solid var(--line);padding:40px 0;position:relative}
   </div>
 </section>
 
-<!-- ══════════ GitHub ══════════ -->
-<section class="sec" id="code" style="padding-bottom:0">
-  <div class="wrap sec-inner">
-    <span class="kicker rv">Open Source</span>
-    <h2 class="rv wide">全部代码都在，没有闭源部分</h2>
-    <p class="lede rv">没有 SwiftPM，没有第三方依赖，一条 swiftc 命令编译成单模块。构建脚本里有锁，多个终端同时构建不会互相覆盖产物。</p>
-
-    <div class="gh rv rv-d2" style="margin-top:44px">
-      <div class="gh-top">
-        <img class="gh-ico" src="assets/icon.png" alt="">
-        <span class="gh-repo">lunasama / <span>HoverFocus</span></span>
-        <span class="gh-badge swift">Swift</span>
-        <span class="gh-badge mac">macOS 12+</span>
-        <span class="gh-badge">中文界面</span>
-        <div class="gh-actions">
-          <a class="gh-btn" href="#install"><svg viewBox="0 0 16 16"><path d="M8 .25a.75.75 0 0 1 .75.75v7.19l2.22-2.22a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06l2.22 2.22V1A.75.75 0 0 1 8 .25ZM3 12a.75.75 0 0 1 .75.75v1.5h8.5v-1.5a.75.75 0 0 1 1.5 0v1.75A1.25 1.25 0 0 1 12.5 16h-9A1.25 1.25 0 0 1 2.25 14.5v-1.75A.75.75 0 0 1 3 12Z"/></svg>Clone</a>
-          <a class="gh-btn" href="#code"><svg viewBox="0 0 16 16"><path d="M8 .25a.75.75 0 0 1 .75.75v7.19l2.22-2.22a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06l2.22 2.22V1A.75.75 0 0 1 8 .25Z"/></svg>Star</a>
-        </div>
-      </div>
-      <div class="gh-body">
-        <div class="gh-readme">
-          <h3><img src="assets/icon.png" alt=""> HoverFocus</h3>
-          <p><b style="color:var(--ink)">鼠标悬停到窗口，键盘焦点就切过去</b> —— 不用点击。</p>
-          <p>一个 macOS 菜单栏小工具，用来替代有 bug 的 AutoFocus。中文界面，<code style="font-family:var(--fm);font-size:13px">LSUIElement</code>，只在菜单栏，没有 Dock 图标。</p>
-          <pre><span class="c"># 安装</span>
-<span class="g">cd</span> "hover-focus"
-<span class="g">make</span> install
-
-<span class="c"># 跑测试（116 用例 / 279 断言）</span>
-<span class="g">bash</span> Scripts/test.sh
-
-<span class="c"># 无权限时也做一次自检</span>
-./build/HoverFocus.app/Contents/MacOS/HoverFocus --selftest</pre>
-          <p style="font-size:13.5px;color:var(--muted)">
-            自检输出一行 JSON：<code style="font-family:var(--fm);font-size:12.5px;color:var(--ink2)">statusItemCreated</code> ·
-            <code style="font-family:var(--fm);font-size:12.5px;color:var(--ink2)">axTrusted</code> ·
-            <code style="font-family:var(--fm);font-size:12.5px;color:var(--ink2)">driverStarted</code> ·
-            <code style="font-family:var(--fm);font-size:12.5px;color:var(--ink2)">monitorMode</code> ·
-            <code style="font-family:var(--fm);font-size:12.5px;color:var(--ink2)">hitTestMode</code> ·
-            <code style="font-family:var(--fm);font-size:12.5px;color:var(--ink2)">iconState</code>
-          </p>
-        </div>
-        <div class="gh-side">
-          <div class="gh-card">
-            <h5>LANGUAGES</h5>
-            <div class="lang">
-              <div><i style="background:#F05138"></i><span>Swift</span><span class="bar"><u style="width:82%;background:#F05138"></u></span><span class="pc">82%</span></div>
-              <div><i style="background:#89e051"></i><span>Shell</span><span class="bar"><u style="width:12%;background:#89e051"></u></span><span class="pc">12%</span></div>
-              <div><i style="background:#e6c07b"></i><span>其他</span><span class="bar"><u style="width:6%;background:#e6c07b"></u></span><span class="pc">6%</span></div>
-            </div>
-          </div>
-          <div class="gh-card">
-            <h5>STRUCTURE</h5>
-            <div class="tree">
-              <b>Sources/</b><br>
-              <span class="d">├─</span> HoverFocus/<span class="d"> UI</span><br>
-              <span class="d">└─</span> HoverFocusCore/<span class="d"> 契约层</span><br>
-              <b>Scripts/</b> <span class="d">build / install / test</span><br>
-              <b>Tools/</b> hf-probe<span class="d"> 诊断探针</span><br>
-              <b>Tests/</b> 手写 harness<span class="d"> 无 XCTest</span><br>
-              <b>docs/</b> VERIFICATION.md
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════ 安装 ══════════ -->
-<section class="sec" id="install">
-  <div class="wrap sec-inner">
-    <span class="kicker rv">Get Started</span>
-    <h2 class="rv wide">三步装完</h2>
-    <div class="steps">
-      <div class="stepbox rv">
-        <div class="n">STEP 01</div>
-        <h3>克隆并安装</h3>
-        <p>install 会创建自签证书、构建、停掉旧实例、装到 /Applications 并启动。旧版本会先备份成 .bak。</p>
-        <code>git clone … &amp;&amp; cd hover-focus &amp;&amp; make install</code>
-      </div>
-      <div class="stepbox rv rv-d1">
-        <div class="n">STEP 02</div>
-        <h3>菜单栏出现图标</h3>
-        <p>不需要授予任何权限，直接就能用。想让它开机自启，在菜单里打开开关就行。</p>
-        <code>⌘,  打开设置 · 改动立刻生效并持久化</code>
-      </div>
-      <div class="stepbox rv rv-d2">
-        <div class="n">STEP 03</div>
-        <h3>试一下，排除碍事的</h3>
-        <p>鼠标停在目标 App 上 → 点菜单栏 → 排除『它』。不想被抢的先加进名单。</p>
-        <code>⌥ 拖动窗口时不会切焦点，这是默认行为</code>
-      </div>
-    </div>
-
-    <div class="cards" style="margin-top:18px">
-      <div class="card rv">
-        <h3>菜单栏图标有 6 种状态</h3>
-        <p>正常态用自绘模板图，颜色跟系统明暗走，不会在彩色壁纸上糊掉；异常态用彩色实心徽标抢注意力。</p>
-        <img src="assets/menubar.png" alt="菜单栏图标各状态" style="margin-top:18px;border-radius:10px;border:1px solid var(--line);background:#fff">
-      </div>
-      <div class="card rv rv-d1">
-        <h3>验收脚本可以自己跑</h3>
-        <p>端到端测试会自建两个靶子 App、把指针 warp 过去、断言前台与 z 序，然后恢复现场。</p>
-        <p style="margin-top:14px">绝不按进程名 kill —— <code style="font-family:var(--fm);font-size:12.5px;color:var(--ink2)">/Applications/HoverFocus.app</code> 是你日常在用的那份，按名杀会连它一起杀掉。这条是出过事故之后写进规范的。</p>
-      </div>
-      <div class="card rv rv-d2">
-        <h3>验证报告可以查</h3>
-        <p>docs/VERIFICATION.md 里每个结论都标了实测通过 / 仅单测覆盖 / 未验证，另外还留着 6 条明确的未验证清单和 5 次变异测试记录。</p>
-        <p style="margin-top:14px">「不把没测的写成通过」—— 这条比报告本身重要。</p>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ══════════ CTA ══════════ -->
 <section class="wrap">
   <div class="cta rv">
     <h2>让鼠标停在哪，<br>键盘就在哪</h2>
     <p>一个菜单栏图标。零权限。默认不打乱你的窗口布局。</p>
     <div class="cta-row">
-      <a class="btn btn-p" href="#install">立即安装</a>
-      <a class="btn btn-g" href="#code">先看源码</a>
+      <a class="btn btn-p" href="https://github.com/djjjs22/HoverFocus/releases/latest" target="_blank" rel="noopener">立即下载</a>
+      <a class="btn btn-g" href="https://github.com/djjjs22/HoverFocus" target="_blank" rel="noopener">GitHub 源码</a>
     </div>
   </div>
 </section>
@@ -1102,8 +807,9 @@ footer{border-top:1px solid var(--line);padding:40px 0;position:relative}
       <a href="#why">为什么</a>
       <a href="#demo">演示</a>
       <a href="#guards">守卫</a>
-      <a href="#code">源码</a>
-      <a href="#install">安装</a>
+      <a href="#perm">权限</a>
+      <a href="https://github.com/djjjs22/HoverFocus" target="_blank" rel="noopener">GitHub</a>
+      <a href="#top">回到顶部</a>
     </nav>
   </div>
 </footer>
