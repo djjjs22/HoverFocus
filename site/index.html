@@ -556,8 +556,7 @@ footer{border-top:1px solid var(--line);padding:40px 0;position:relative}
     <nav class="nav-links">
       <a href="#why">为什么</a>
       <a href="#demo">演示</a>
-      <a href="#compare">对比</a>
-      <a href="#guard">守卫</a>
+      <a href="#guards">守卫</a>
       <a href="#how">原理</a>
       <a href="#code">源码</a>
     </nav>
@@ -721,63 +720,38 @@ footer{border-top:1px solid var(--line);padding:40px 0;position:relative}
   </div>
 </section>
 
-<!-- ══════════ 对比 ══════════ -->
-<section class="sec" id="compare">
+<!-- ══════════ 该不动的时候不动 ══════════ -->
+<section class="sec" id="guards">
   <div class="ghost-num">03</div>
   <div class="wrap sec-inner">
-    <span class="kicker rv">Comparison</span>
-    <h2 class="rv wide">六条差异，都是踩过坑才写出来的</h2>
-    <p class="lede rv">下面每一行都对应一个真实问题。有些是 AutoFocus 用户长期反馈的老毛病，有些是我们自己在真机上抓出来的。</p>
-
-    <div class="cmp rv rv-d2" style="margin-top:44px">
-      <div class="cmp-row head"><div>维度</div><div>AUTOFOCUS</div><div>HOVERFOCUS</div></div>
-
-      <div class="cmp-row"><div>焦点切换时顺带置顶窗口</div><div><span class="mark mk-n">✕</span>会</div><div><span class="mark mk-y">✓</span>默认只切焦点，叠放顺序不变</div></div>
-
-      <div class="cmp-row"><div>手划过就抢焦点</div><div><span class="mark mk-n">✕</span>会</div><div><span class="mark mk-y">✓</span>dwell 延时 + 动作后冷却</div></div>
-
-      <div class="cmp-row"><div>排除某些 App</div><div><span class="mark mk-n">✕</span>不支持</div><div><span class="mark mk-y">✓</span>排除名单，按 Bundle ID 匹配</div></div>
-
-      <div class="cmp-row"><div>全屏 / 其他 Space</div><div><span class="mark mk-n">✕</span>可能乱跳</div><div><span class="mark mk-y">✓</span>只在当前可见窗口上动作</div></div>
-
-      <div class="cmp-row"><div>正在拖拽窗口 / 拖选文字</div><div><span class="mark mk-n">✕</span>会抢</div><div><span class="mark mk-y">✓</span>拖拽守卫，完全不动</div></div>
-
-      <div class="cmp-row"><div>单行输入框改名 / 表格单元格编辑</div><div><span class="mark mk-n">✕</span>编辑被取消</div><div><span class="mark mk-y">✓</span>文本编辑守卫</div></div>
-
-      <div class="cmp-row"><div>权限要求</div><div><span class="mark mk-n">✕</span>必须辅助功能</div><div><span class="mark mk-y">✓</span>默认零权限可用，授权只是增强</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════ 守卫 ══════════ -->
-<section class="sec" id="guard">
-  <div class="ghost-num">04</div>
-  <div class="wrap sec-inner">
     <span class="kicker rv">Guards</span>
-    <h2 class="rv wide">三种「你正在忙」的时刻，它都不动</h2>
+    <h2 class="rv wide">它知道什么时候不该动手</h2>
     <p class="lede rv">
-      悬停切焦点最讨人嫌的失败模式不是不灵，而是<b>在你明确不想它动的时候动了</b>。
-      这三道守卫是按真机时序一个一个补出来的 ——
+      悬停切焦点最讨人嫌的失败模式不是不灵，而是<strong style="color:var(--ink2);font-weight:600">在你明确不想它动的时候动了</strong>。
+      这四道守卫每一个都是在真机上抓出问题后补出来的 ——
       其中拖拽守卫那道缺口，116 条纯逻辑单测全绿也照样漏掉了。
     </p>
 
-    <div class="cards">
+    <div class="cards" style="margin-top:52px">
       <div class="card rv">
         <div class="card-ico"><svg viewBox="0 0 24 24"><path d="M4 8h9M4 12h16M4 16h9"/><circle cx="19" cy="8" r="2"/><circle cx="17" cy="16" r="2"/></svg></div>
-        <h3>修饰键守卫</h3>
-        <p>按住 <b style="color:var(--ink2)">⌘ ⌥ ⌃ ⇧</b> 的时候焦点一动不动。你正在用快捷键，别来抢。<br><br>Caps Lock 和 fn 不算意图修饰键 —— 按住它们切窗口是正常操作。</p>
+        <h3>按住修饰键</h3>
+        <p><strong style="color:var(--ink2)">⌘ ⌥ ⌃ ⇧</strong> 的时候焦点一动不动。你正在用快捷键，别来抢。</p>
+        <p style="margin-top:14px">Caps Lock 和 fn 不算意图修饰键 —— 按住它们切窗口是正常操作。</p>
         <div class="chk">真机合成输入验证 · 零动作</div>
       </div>
       <div class="card rv rv-d1">
         <div class="card-ico"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5z"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><path d="m9 12 2 2 4-4"/></svg></div>
-        <h3>拖拽守卫</h3>
-        <p>拖窗口、拖选文字时完全不动。拖拽中改窗口叠放会<b style="color:var(--ink2)">直接取消拖拽</b>，用户感知就是「窗口拖不动」。<br><br>这条修过一个只有真机能抓到的缺口 —— 系统按键状态滞后于事件流，触控板拖拽下全程为 false。</p>
+        <h3>正在拖拽</h3>
+        <p>拖窗口、拖选文字时完全不动。拖拽中改窗口叠放会<strong style="color:var(--ink2)">直接取消拖拽</strong>，用户感知就是「窗口拖不动」。</p>
+        <p style="margin-top:14px">这条修过一个只有真机能抓到的缺口 —— 系统按键状态滞后于事件流，触控板拖拽下全程为 false。</p>
         <div class="chk">修复后 鼠标 0/10 · 触控板 0/10 漏判</div>
       </div>
       <div class="card rv rv-d2">
         <div class="card-ico"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="13" rx="1.5"/><path d="M8 21h8M12 17v4"/><path d="m9 9 6 6M15 9l-6 6"/></svg></div>
-        <h3>全屏守卫</h3>
-        <p>前台 App 全屏时绝不抢。看视频、演示、共享屏幕的时候，窗口不该乱跳。<br><br>几何判定的容差原本写死 2pt，而真实铺满屏幕的窗口会内缩 4–5pt —— 结果是判不出来。已按真机实测修掉。</p>
+        <h3>前台全屏</h3>
+        <p>看视频、演示、共享屏幕的时候窗口不该乱跳。前台 App 全屏时绝不抢焦点。</p>
+        <p style="margin-top:14px">几何判定的容差原本写死 2pt，而真实铺满屏幕的窗口会内缩 4–5pt —— 结果是判不出来。已按真机实测修掉。</p>
         <div class="chk">铺满屏前台 App → .fullScreenBlocked</div>
       </div>
     </div>
@@ -785,21 +759,24 @@ footer{border-top:1px solid var(--line);padding:40px 0;position:relative}
     <div class="cards" style="margin-top:18px">
       <div class="card rv">
         <div class="card-ico"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h16"/></svg></div>
-        <h3>文本编辑守卫</h3>
-        <p>Finder 里按 Return 重命名、表格里改单元格 —— 窗口一失焦编辑就被取消，你白输入。<br><br>只挡 <b style="color:var(--ink2)">AXTextField / AXComboBox / AXSearchField</b>，多行文本区故意不挡：否则在聊天框里打字时悬停永远不切窗口，核心功能就废了。这是取舍，不是漏判。</p>
+        <h3>单行文本编辑中</h3>
+        <p>Finder 里按 Return 重命名、表格里改单元格 —— 窗口一失焦编辑就被取消，你白输入。</p>
+        <p style="margin-top:14px">只挡 <strong style="color:var(--ink2)">单行输入框</strong>，多行文本区故意不挡：否则在聊天框里打字时悬停永远不切窗口，核心功能就废了。这是取舍，不是漏判。</p>
         <div class="chk">9 用例 / 19 断言 · 变异测试验证</div>
       </div>
       <div class="card rv rv-d1">
-        <div class="card-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/></svg></div>
-        <h3>排除名单</h3>
-        <p>名单里的 App 永远不会被悬停抢焦点。鼠标停在目标 App 上，点菜单栏 → 「排除『Safari』」，一步搞定。<br><br>按 <b style="color:var(--ink2)">Bundle ID</b> 匹配，它是稳定主键，App 显示名只作兜底。重启后依然有效。</p>
-        <div class="chk">真机 harness T4 · 持久化验证</div>
-      </div>
-      <div class="card rv rv-d2">
         <div class="card-ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2.5"/><path d="M3 9h18M8 21V9"/></svg></div>
         <h3>菜单栏 / 自身窗口</h3>
-        <p>指针在菜单栏上不动作 —— 那里有 Apple 菜单和你自己的菜单。<br><br>HoverFocus 自己的设置窗口和诊断窗口同样排除，不然它会一直对自己的窗口动手。系统 UI 与被隐藏的 App 也在判定链上单独拦截。</p>
+        <p>指针在菜单栏上不动作 —— 那里有系统菜单和你自己的菜单。</p>
+        <p style="margin-top:14px">它自己的设置窗口和诊断窗口同样排除，不然会一直对自己的窗口动手。系统 UI 与被隐藏的 App 也在判定链上单独拦截。</p>
         <div class="chk">契约第 4 / 7 / 8 / 9 步</div>
+      </div>
+      <div class="card rv rv-d2">
+        <div class="card-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/></svg></div>
+        <h3>排除名单</h3>
+        <p>不想被抢焦点的 App 加进名单，重启后依然有效。鼠标停在目标上 → 点菜单栏 → 一键排除。</p>
+        <p style="margin-top:14px">按 <strong style="color:var(--ink2)">Bundle ID</strong> 匹配，那是稳定主键；App 显示名只作兜底，改了名也不失效。</p>
+        <div class="chk">真机 harness T4 · 持久化验证</div>
       </div>
     </div>
   </div>
@@ -843,7 +820,7 @@ footer{border-top:1px solid var(--line);padding:40px 0;position:relative}
 
 <!-- ══════════ 契约 ══════════ -->
 <section class="sec" id="how">
-  <div class="ghost-num">05</div>
+  <div class="ghost-num">04</div>
   <div class="wrap sec-inner">
     <span class="kicker rv">The Contract</span>
     <h2 class="rv wide">17 步判定顺序，一格都不能错</h2>
@@ -883,7 +860,7 @@ footer{border-top:1px solid var(--line);padding:40px 0;position:relative}
 
 <!-- ══════════ 权限 ══════════ -->
 <section class="sec" id="perm">
-  <div class="ghost-num">06</div>
+  <div class="ghost-num">05</div>
   <div class="wrap sec-inner">
     <span class="kicker rv">Permissions</span>
     <h2 class="rv wide">默认零权限。不是「可以不授权」，是根本不需要</h2>
@@ -1124,8 +1101,7 @@ footer{border-top:1px solid var(--line);padding:40px 0;position:relative}
     <nav>
       <a href="#why">为什么</a>
       <a href="#demo">演示</a>
-      <a href="#compare">对比</a>
-      <a href="#guard">守卫</a>
+      <a href="#guards">守卫</a>
       <a href="#code">源码</a>
       <a href="#install">安装</a>
     </nav>
