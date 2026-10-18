@@ -98,4 +98,4 @@ Scripts/                  build / install / make-dmg / test
 
 ## 许可
 
-自用工具，暂未指定开源许可。
+[MIT](LICENSE)
