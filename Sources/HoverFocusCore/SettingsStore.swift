@@ -1,4 +1,4 @@
-//  SettingsStore — UserDefaults 持久化实现（core-engine 所有）
+//  SettingsStore — UserDefaults 持久化实现
 //
 //  契约（Contracts.swift）：
 //      protocol SettingsStore { var settings: Settings { get set }; func addObserver(...) }
@@ -9,7 +9,7 @@
 //      所以内存里的 current 永远是 sanitized 过的，UI 拿到的一定是安全值；
 //   3. addObserver 支持多个观察者，变更时全部回调。
 //
-//  行为细节（已通知 app-shell / verifier）：
+//  行为细节（已通知 / ）：
 //   · 只有在 sanitize 后的值与当前值**不相等**时才回调观察者（重复写同一个值不触发）。
 //   · 注册观察者时**不**立刻回调一次；UI 初始化请先读一次 store.settings。
 //   · 契约里没有移除观察者的 API，所以观察者只增不减（进程级单例，够用）。

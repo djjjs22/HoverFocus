@@ -1,4 +1,4 @@
-//  MouseMonitor — 鼠标事件源（Lead 所有）
+//  MouseMonitor — 鼠标事件源
 //
 //  为什么用 CGEventTap 而不是 NSEvent.addGlobalMonitorForEvents（AutoFocus 用的是后者）：
 //  1. tap 能直接拿到 CGEvent 的原始坐标与 flags，不用过 NSEvent 转换层；

@@ -1,4 +1,4 @@
-//  HoverFocus — 「当前前台 App」追踪（app-shell 所有）
+//  HoverFocus — 「当前前台 App」追踪
 //
 //  为什么需要这个：菜单里的「排除当前 App」和设置窗口里的「添加当前前台 App」
 //  都要知道「用户此刻在用的 App」。但一旦 HoverFocus 自己的设置窗口成为 key window，

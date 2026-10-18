@@ -1,4 +1,4 @@
-//  HoverFocus — 菜单栏 App 主体（app-shell 所有）
+//  HoverFocus — 菜单栏 App 主体
 //
 //  职责：
 //    - NSStatusItem 三态图标（开 / 关 / 权限缺失）
@@ -20,7 +20,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, FocusD
     private var statusItem: NSStatusItem?
     private var env: AppEnvironment?
     private var settingsWindowController: SettingsWindowController?
-    /// 首次启动 3 步引导（task-6）。懒创建，菜单里可以重新打开。
+    /// 首次启动 3 步引导。懒创建，菜单里可以重新打开。
     private var firstRunWindowController: FirstRunWindowController?
 
     /// 全局快捷键 ⌃⌥H（暂停 / 恢复悬停切换）。零权限，Carbon 注册。
@@ -160,7 +160,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, FocusD
         let trusted = Permissions.isAccessibilityTrusted
 
         // ── 稳定窗口 ────────────────────────────────────────────────────────
-        // AXIsProcessTrusted 的取值依赖「哪个二进制 / 哪种启动方式」：verifier 实测同一台机器、
+        // AXIsProcessTrusted 的取值依赖「哪个二进制 / 哪种启动方式」：实测同一台机器、
         // 几乎同一时刻，shell 直接 exec 与经 `open` 启动的两份副本结论相反
         // （TCC 按责任进程归属判定）。所以它不是一个能拿来做瞬时门禁的布尔值 ——
         // 连续 3 次（约 3 秒）读到同一值才认定「状态真的迁移了」，抖一次不动作。
@@ -223,7 +223,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, FocusD
 
     // MARK: - 权限快照
 
-    /// 权限不是一个布尔值。Lead 实测结论：未授权时 CGEvent.tapCreate 会成功返回 tap，
+    /// 权限不是一个布尔值。实测结论：未授权时 CGEvent.tapCreate 会成功返回 tap，
     /// 但系统立刻把它禁用、收到 0 个事件 —— 所以「tap 建好了」不等于「能收到事件」。
     /// 这里把三个信号一起取，才能给用户准确的三态（见 StatusIcon.state）。
     private struct PermissionSnapshot {

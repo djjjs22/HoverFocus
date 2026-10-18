@@ -1,5 +1,5 @@
 #!/bin/bash
-#  HoverFocus — 诊断探针构建（verifier 所有）
+#  HoverFocus — 诊断探针构建
 #
 #  产出 build/hf-probe。探针**链接真实核心代码**（WindowProbe / FocusController /
 #  SkyLightBridge / Permissions），但所有测量都用它自己独立实现的 CGWindowList /

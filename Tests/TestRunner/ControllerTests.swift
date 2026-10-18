@@ -1,4 +1,4 @@
-//  HoverFocus — FocusController / SettingsStore 单测（verifier 所有）
+//  HoverFocus — FocusController / SettingsStore 单测
 //  ─────────────────────────────────────────────────────────────────────────
 //  FocusController 是「只切焦点不置顶」这条需求的执行端，而它唯一诚实的输出
 //  就是 didRaise（由 z 序前后对比**实测**得出）。本机没有辅助功能权限，

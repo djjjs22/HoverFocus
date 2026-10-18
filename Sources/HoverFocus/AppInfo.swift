@@ -1,4 +1,4 @@
-//  HoverFocus — 应用元信息（app-shell 所有）
+//  HoverFocus — 应用元信息
 //
 //  版本号从 Info.plist 读；直接用裸二进制跑（不在 .app 里）时 infoDictionary 拿不到，
 //  所以必须有 fallback —— 契约要求 --selftest 输出 "version":"0.1.0"。

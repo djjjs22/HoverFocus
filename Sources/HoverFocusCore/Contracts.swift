@@ -1,9 +1,9 @@
 //  HoverFocus — 契约层（冻结 API）
 //  ─────────────────────────────────────────────────────────────────────────
-//  本文件由 Lead 维护。core-engine / app-shell / verifier 三方都按此契约实现与测试。
-//  改这个文件 = 改公共接口，必须同步通知另外两方（用 send_message）。
+//  本文件定义全工程的核心契约，其余代码都按此实现与测试。
+//  改这个文件 = 改公共接口，所有实现方都要同步。
 //
-//  为什么要有这个文件：三个 agent 并行写同一个工程，如果接口靠口头约定，
+//  为什么要有这个文件：这是全工程唯一的接口约定处。接口如果只靠口头约定，
 //  合起来一定编译不过。这里把「谁给谁什么」钉死：
 //
 //      MouseEventSource ──sample──▶ FocusDriver ──▶ FocusEngine ──decision──▶ FocusActing
@@ -340,7 +340,7 @@ protocol MouseEventSource: AnyObject {
     /// ⚠️ 这一行**必须**留在 protocol body 里，不能只写在 extension 里。
     /// 只写在 extension 的成员走**静态派发**：通过 `MouseEventSource` 存在类型访问时
     /// 永远拿到默认值 false，具体类型（MouseMonitor）覆写的 true 会被**静默忽略**。
-    /// （core-engine 用同构最小复现验证过：具体类型读 = true，存在类型读 = false。）
+    /// （用同构最小复现验证过：具体类型读 = true，存在类型读 = false。）
     /// body 里声明 + extension 给默认实现 = 正确的动态派发，且不破坏已有实现者。
     var requiresAccessibilityPermission: Bool { get }
     func start() throws
@@ -373,11 +373,11 @@ struct EngineStats: Equatable {
 typealias MonotonicClock = () -> TimeInterval
 
 /// FocusEngine 与 FocusDriver 的**冻结签名**见：
-///   Sources/HoverFocusCore/FocusEngine.swift   （core-engine 所有）
-///   Sources/HoverFocusCore/FocusDriver.swift   （core-engine 所有）
-/// 签名不许改；实现由 core-engine 负责。app-shell 只依赖这里的 protocol 与那两个类。
+///   Sources/HoverFocusCore/FocusEngine.swift   
+///   Sources/HoverFocusCore/FocusDriver.swift   
+/// 签名不许改；实现由 负责。只依赖这里的 protocol 与那两个类。
 ///
-/// FocusEngine 的判定顺序（这是本工具的质量核心，verifier 按这个顺序写测试）：
+/// FocusEngine 的判定顺序（这是本工具的质量核心，按这个顺序写测试）：
 ///
 ///   1. !enabled                            → .disabled
 ///   2. isDragging && suppressWhileDragging → .dragging

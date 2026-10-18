@@ -1,8 +1,8 @@
-//  HoverFocus — 设置的唯一写入口（app-shell 所有）
+//  HoverFocus — 设置的唯一写入口
 //
-//  验收标准第 3 条要求「改完立刻生效并持久化（走 core-engine 的 SettingsStore，别自己另存一份）」。
+//  验收标准第 3 条要求「改完立刻生效并持久化（走 的 SettingsStore，别自己另存一份）」。
 //  菜单和设置窗口两条 UI 路径都从这里改设置，保证：
-//    - 只写 store.settings（core-engine 的实现负责持久化 + 通知观察者）
+//    - 只写 store.settings（的实现负责持久化 + 通知观察者）
 //    - 每次写入都过 Settings.sanitized()
 //    - 排除名单的增删规则只有一份实现（菜单和窗口行为不会不一致）
 

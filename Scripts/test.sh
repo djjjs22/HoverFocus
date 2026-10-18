@@ -1,5 +1,5 @@
 #!/bin/bash
-#  HoverFocus — 单元测试（verifier 所有）
+#  HoverFocus — 单元测试
 #
 #  为什么不用 swift test / XCTest：
 #   1. 本机 SwiftPM 损坏 —— swift build / swift test / swift package 全部在编译

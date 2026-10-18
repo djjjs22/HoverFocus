@@ -1,4 +1,4 @@
-//  HoverFocus — 应用入口（app-shell 所有）
+//  HoverFocus — 应用入口
 //
 //  两种运行模式：
 //    HoverFocus              常驻菜单栏模式（LSUIElement，无 Dock 图标）

@@ -1,15 +1,15 @@
-//  FocusEngine — 判定核心（core-engine 所有）
+//  FocusEngine — 判定核心
 //
 //  纯逻辑：handle() / tick() 只读注入的 probe 与 clock()，零副作用
 //  （不写 UserDefaults、不调 actuator、不碰 UI）。唯一有副作用的方法是 perform()。
 //
-//  判定顺序严格照 Contracts.swift 顶部的 1–16 步（verifier 按这个顺序写测试）：
+//  判定顺序严格照 Contracts.swift 顶部的 1–16 步（按这个顺序写测试）：
 //     1 !enabled → 2 dragging → 3 modifiers → 4 menuBar → 5 noWindow
 //     6 nonNormalWindow / notOnScreen → 7 ownApp → 8 systemUI → 9 appHidden
 //    10 excludedApp → 11 fullScreenBlocked → 12 sameWindow → 13 cooldown
 //    14 计时重置 → 15 dwell 未到 → 16 act
 //
-//  实现要点（与 verifier 约定的测试契约，改动必须同步通知）：
+//  实现要点（与 约定的测试契约，改动必须同步通知）：
 //   · 时间源一律取注入的 clock()。MouseSample.timestamp 只做诊断，不参与判定，
 //     否则「fake clock 推进 + 采样时间戳不变」的测试会得到错误结果。
 //   · 第 12 步 sameWindow 在第 14 步 dwell 之前 —— 鼠标在已聚焦窗口上晃不会反复触发动作，

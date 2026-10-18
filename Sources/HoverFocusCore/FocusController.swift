@@ -1,4 +1,4 @@
-//  FocusController — FocusActing 的真实实现（core-engine 所有）
+//  FocusController — FocusActing 的真实实现
 //
 //  职责：把 WindowRef 变成「前台 + 键盘焦点」，并**实测**这次操作到底有没有改变
 //  窗口叠放顺序（FocusOutcome.didRaise）。这个字段是给用户的诚实交代：
@@ -15,7 +15,7 @@
 //     perform 跑在 CGEventTap 的回调链上（低延迟模式下），在这里 sleep 会卡住**全系统**的
 //     鼠标事件投递。历史版本用 `settle()` 睡 4×5ms=20ms 等 z 序落定，实测主线程中位 33ms、
 //     最多 6.7 次动作/秒 ≈ 22% 主线程占用；而且**等也等不到** —— 窗口服务器把「置顶」
-//     反映到 z 序上要 ~150ms（Lead 实测 4/4 轮：立刻读=旧值，150ms 后=新值），
+//     反映到 z 序上要 ~150ms（实测 4/4 轮：立刻读=旧值，150ms 后=新值），
 //     20ms 的观测窗口比效果延迟还短，导致 raise 路径的 didRaise 恒为 false（假阴性）。
 //     现在的做法：动作路径只读一次 z（≈0.22ms）当**临时值**，真正的结论交给
 //     +0.18s 的**非阻塞延迟补测**（scheduleRaiseResolution → onRaiseResolved）。
@@ -108,13 +108,13 @@ final class FocusController: FocusActing {
     /// 延迟补测回调（主线程）。FocusDriver 在 start() 里接上，用于抛「不置顶模式实际置顶」告警。
     var onRaiseResolved: ((RaiseResolution) -> Void)?
 
-    /// 补测延迟：Lead 实测 activate() 返回后 ~150ms 才能在 z 序上看到置顶，留余量取 0.18s。
+    /// 补测延迟：实测 activate() 返回后 ~150ms 才能在 z 序上看到置顶，留余量取 0.18s。
     static let raiseResolutionDelay: TimeInterval = 0.18
 
     // MARK: - FocusActing
 
     func focus(window: WindowRef, raise: Bool) -> FocusOutcome {
-        // 动作路径只读、不 sleep。zOrderIndex ≈0.22ms（Lead 实测，内部会强制刷新窗口列表）。
+        // 动作路径只读、不 sleep。zOrderIndex ≈0.22ms（实测，内部会强制刷新窗口列表）。
         let zBefore = probe.zOrderIndex(of: window.windowID)
 
         if raise {

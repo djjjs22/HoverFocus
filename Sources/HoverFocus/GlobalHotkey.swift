@@ -1,4 +1,4 @@
-//  GlobalHotkey — 全局快捷键（Lead 所有）
+//  GlobalHotkey — 全局快捷键
 //
 //  为什么用 Carbon `RegisterEventHotKey` 而不是 NSEvent：
 //    - `NSEvent.addGlobalMonitorForEvents` **需要辅助功能权限**，而且拿不到「消费掉这个按键」

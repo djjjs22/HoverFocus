@@ -1,4 +1,4 @@
-//  HoverFocus — 日志（app-shell 所有）
+//  HoverFocus — 日志
 //
 //  为什么同时用 os_log 和 NSLog：
 //    实测发现用 `open build/HoverFocus.app` 启动时，NSLog 的输出**进不了 unified log**

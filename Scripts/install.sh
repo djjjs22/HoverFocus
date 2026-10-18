@@ -1,5 +1,5 @@
 #!/bin/bash
-#  HoverFocus — 安装到 /Applications（app-shell 维护）
+#  HoverFocus — 安装到 /Applications
 #  ─────────────────────────────────────────────────────────────────────────
 #  做四件事：
 #    1. 构建（make app），必要时先创建自签证书

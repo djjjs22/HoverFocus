@@ -1,5 +1,5 @@
 #!/bin/bash
-#  HoverFocus — 端到端悬停验证（verifier 所有）
+#  HoverFocus — 端到端悬停验证
 #
 #  验证目标：把指针停在一个**非前台**窗口上 → 停满 dwell → 该窗口所属 App 变成前台，
 #            且默认模式（只切焦点）**不改变窗口叠放顺序**。
@@ -173,7 +173,7 @@ if [ -x "$APP_BIN" ]; then
   HF_DRIVER_STARTED=$(printf '%s' "$HF_SELFTEST" | grep -o '"driverStarted":[^,}]*' | cut -d: -f2)
   echo "  HoverFocus --selftest axTrusted=${HF_AX_TRUSTED:-未知} driverStarted=${HF_DRIVER_STARTED:-未知}"
   echo "  selftest 摘要：$(printf '%s' "$HF_SELFTEST" | cut -c1-220)…"
-  echo "  说明：app-shell 现在默认用 MousePoller（零权限），所以 axTrusted=false 也可能功能可用；"
+  echo "  说明：现在默认用 MousePoller（零权限），所以 axTrusted=false 也可能功能可用；"
   echo "        真正的门槛是「鼠标监听能不能起来」，即 driverStarted。"
 else
   echo "  ⚠️  HoverFocus.app 不存在，无法查它的启动状态"
@@ -229,7 +229,7 @@ if [ "$HF_DRIVER_STARTED" != "true" ] && [ "$HF_AX_TRUSTED" != "true" ]; then
   hdr "5b 参考：无权限也能跑的核心链路（不计入 PASS/FAIL）"
   echo "  链路：真实 WindowProbe + FocusController + MousePoller + FocusEngine"
   echo "  注意：**不含菜单栏 App 本体**，只能证明「判定 + 执行」这段是通的，"
-  echo "        不能替代端到端结论（app-shell 的装配、权限门、菜单栏 UI 都没被覆盖）。"
+  echo "        不能替代端到端结论（的装配、权限门、菜单栏 UI 都没被覆盖）。"
   "$PROBE" pipeline --pid "$TARGET_B_PID" --window "$B_WINDOW" --dwell 0.3 --seconds 4 || true
 
   echo ""

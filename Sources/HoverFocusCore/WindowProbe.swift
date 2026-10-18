@@ -1,4 +1,4 @@
-//  WindowProbe — AX 命中测试 + 窗口信息富化（Lead 所有）
+//  WindowProbe — AX 命中测试 + 窗口信息富化
 //
 //  这是整个工具最贵的部分，也是精度与「不跨 Space 乱跳」的关键。
 //

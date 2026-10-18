@@ -58,7 +58,7 @@ func runIconStateTests() {
                  "driverError 非 nil → .error")
     }
 
-    // ── 判定顺序的两个硬性断言（task-7 明确要求）
+    // ── 判定顺序的两个硬性断言（明确要求）
     test("IconState 顺序：权限态优先于开关态（未授权 + 已关闭 → permissionMissing）", steps: []) {
         // 用户看到的应该是「去授权」，而不是「你把它关了」——否则他找不到问题。
         expectEq(StatusIcon.state(settings: s(enabled: false), axTrusted: false), .permissionMissing,

@@ -1,4 +1,4 @@
-//  MousePoller — 无需任何系统权限的鼠标采样源（Lead 所有）
+//  MousePoller — 无需任何系统权限的鼠标采样源
 //
 //  为什么它是本工具的**首选**事件源，而不是 CGEventTap：
 //

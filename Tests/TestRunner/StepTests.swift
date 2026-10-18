@@ -1,4 +1,4 @@
-//  HoverFocus — FocusEngine 16 步判定顺序测试（verifier 所有）
+//  HoverFocus — FocusEngine 16 步判定顺序测试
 //  ─────────────────────────────────────────────────────────────────────────
 //  判定顺序契约见 Sources/HoverFocusCore/Contracts.swift 顶部注释。
 //  每个用例用 steps:[...] 标注覆盖的步骤号，末尾的覆盖矩阵会检查 16 步无遗漏。

@@ -1,11 +1,11 @@
-//  HoverFocus — 自检模式（app-shell 所有）
+//  HoverFocus — 自检模式
 //
-//  ⚠️ 这个模式是**本机唯一不依赖用户肉眼的验证手段**，verifier 的端到端验证依赖它。
+//  ⚠️ 这个模式是**本机唯一不依赖用户肉眼的验证手段**，的端到端验证依赖它。
 //  原因：本机 screencapture 被系统拒绝（无屏幕录制权限），而且 macOS 26+ 的菜单栏图标
 //  由 MenuBarAgent 合成、不是独立窗口，CGWindowListCopyWindowInfo 里根本查不到。
 //  所以「图标到底出没出来」只能靠进程内自查 NSStatusItem.button?.window 的 frame / isVisible。
 //
-//  契约（task-2 第 6 条）：
+//  契约第 6 条：
 //    不进入常驻菜单栏模式 → 创建 status item → 等 1s → 打印**单行 JSON** → exit 0
 //    字段至少包含：statusItemCreated / buttonWindowVisible / buttonWindowFrame /
 //                  axTrusted / version / driverStarted / error
@@ -67,7 +67,7 @@ enum SelfTest {
         }
         RunLoop.main.add(timer, forMode: .common)
 
-        // 兜底：万一 timer 没被调度（自检不能挂住 verifier 的脚本），5s 后照样出 JSON
+        // 兜底：万一 timer 没被调度（自检不能挂住 的脚本），5s 后照样出 JSON
         DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
             finish(ctx, reason: "fallback-timeout")
         }

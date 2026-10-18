@@ -1,4 +1,4 @@
-//  FocusDriver — 把 MouseEventSource / FocusEngine / 定时器接起来（core-engine 所有）
+//  FocusDriver — 把 MouseEventSource / FocusEngine / 定时器接起来
 //
 //  数据流（见 Contracts.swift 顶部）：
 //      monitor.onSample ──▶ engine.handle ──▶ .act 时 engine.perform ──▶ actuator
@@ -14,7 +14,7 @@
 //   · monitor.stop()；
 //   · isStarted = false，consume/tickOnce 双保险拒绝回调 delegate。
 //
-//  非契约测试接缝（init 签名没改，只是多了两个属性，verifier 用它测接线）：
+//  非契约测试接缝（init 签名没改，只是多了两个属性，用它测接线）：
 //   · permissionCheck：默认查系统辅助功能授权，测试可替换为 { true } 走通接线；
 //   · isTicking：tick Timer 是否有效，用来断言 stop() 真的停掉了定时器。
 
@@ -71,7 +71,7 @@ final class FocusDriver {
 
         // 只在事件源**自己声明需要授权**时才查权限（该属性已是真正的 protocol requirement，
         // 走动态派发：MouseMonitor=true，MousePoller / 假实现=false）。
-        // 零权限的 MousePoller 绝不能被这道门槛挡死 —— app-shell 已经把它当默认事件源，
+        // 零权限的 MousePoller 绝不能被这道门槛挡死 —— 已经把它当默认事件源，
         // 无条件查 AXIsProcessTrusted 会让 App 一启动就抛「缺少辅助功能权限」。
         // （MouseMonitor.start() 内部还会再查一次 tapIsEnabled，所以即使这里漏判也不会静默失灵。）
         if monitor.requiresAccessibilityPermission {
@@ -112,7 +112,7 @@ final class FocusDriver {
 
     /// 接上 FocusController 的**延迟补测**。
     ///
-    /// 为什么要它：窗口服务器把「置顶」反映到 z 序上要 ~150ms（Lead 实测 4/4 轮），
+    /// 为什么要它：窗口服务器把「置顶」反映到 z 序上要 ~150ms（实测 4/4 轮），
     /// 而动作路径上不能 sleep（会卡住 CGEventTap 的鼠标事件投递 33ms）。所以动作返回时
     /// 拿到的 didRaise 是**临时值**（对会置顶的策略来说通常是滞后的 false），
     /// 真实结论由 +0.18s 的补测回调给出 —— 这里把它接到告警上。

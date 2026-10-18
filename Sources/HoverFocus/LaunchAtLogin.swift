@@ -1,4 +1,4 @@
-//  HoverFocus — 开机自启（app-shell 所有）
+//  HoverFocus — 开机自启
 //
 //  验收标准第 5 条：SMAppService.mainApp 优先，注册失败退回 ~/Library/LaunchAgents plist，
 //  并且要在 UI 上**如实**告诉用户当前用的是哪种、成功没有。不许静默失败。

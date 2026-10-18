@@ -1,5 +1,5 @@
 #!/bin/bash
-#  HoverFocus 构建脚本（app-shell 维护）
+#  HoverFocus 构建脚本
 #
 #  为什么不用 swift build：本机 Command Line Tools 安装不一致 ——
 #  /Library/Developer/CommandLineTools/usr/lib/swift/pm/ManifestAPI/libPackageDescription.dylib

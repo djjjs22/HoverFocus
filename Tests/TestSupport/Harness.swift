@@ -1,4 +1,4 @@
-//  HoverFocus — 手写测试 harness（verifier 所有）
+//  HoverFocus — 手写测试 harness
 //  ─────────────────────────────────────────────────────────────────────────
 //  为什么不用 XCTest：本机只有 Command Line Tools，没有可用的 XCTest；
 //  且 SwiftPM 已损坏（swift test 链接失败）。所以这里是一个零依赖的极简运行器：

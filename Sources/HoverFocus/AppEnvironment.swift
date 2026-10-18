@@ -1,6 +1,6 @@
-//  HoverFocus — 依赖装配点（app-shell 所有）
+//  HoverFocus — 依赖装配点
 //
-//  ⚠️ 这是全 App **唯一**构造 core-engine / lead 具体类型的地方。
+//  ⚠️ 这是全 App **唯一**构造 / lead 具体类型的地方。
 //  契约（Contracts.swift）只定义 protocol，具体实现分散在别人的文件里；
 //  把装配集中在这里，接口一变只改这一处，UI 代码不用动。
 //
@@ -52,7 +52,7 @@ enum MonitorMode: String, CaseIterable {
 // MARK: - 事件源偏好持久化
 //
 //  契约里的 Settings 没有「事件源」字段（那是判定参数，这是 App 层的运行方式），
-//  所以这里单独存一个键。故意**不用** "HoverFocus." 前缀 —— 那是 core-engine
+//  所以这里单独存一个键。故意**不用** "HoverFocus." 前缀 —— 那是 
 //  的 Settings 键空间，混进去可能被他批量读取/清理时误伤。
 
 enum MonitorPreference {

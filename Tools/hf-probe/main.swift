@@ -1,4 +1,4 @@
-//  hf-probe — HoverFocus 诊断探针（verifier 所有）
+//  hf-probe — HoverFocus 诊断探针
 //  ─────────────────────────────────────────────────────────────────────────
 //  为什么需要它：本机没有辅助功能权限、看不到屏幕、菜单栏图标不是独立窗口，
 //  所以「到底能不能只切焦点不置顶」这件事只能用进程内探针 + 系统查询来标定。
@@ -551,8 +551,7 @@ func cmdCalibrate(_ args: [String]) -> Int32 {
 //  为什么这条证据可信：整条链路没有替身 —— 采样是真的（轮询真实光标）、
 //  命中测试是真的（WindowProbe）、私有 SkyLight 调用是真的、z 序测量是本文件
 //  独立实现的。
-//  为什么它**不能**替代完整端到端：菜单栏 App 本体没参与（app-shell 的装配、
-//  权限门、菜单栏 UI 都没被覆盖）。
+//  为什么它**不能**替代完整端到端：菜单栏 App 本体没参与，权限门和菜单栏 UI 都没被覆盖。
 
 final class PipelineRecorder: FocusDriverDelegate {
     var decisions: [FocusDecision] = []

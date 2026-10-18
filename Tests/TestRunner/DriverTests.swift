@@ -1,10 +1,10 @@
-//  HoverFocus — FocusDriver 接线测试（verifier 所有）
+//  HoverFocus — FocusDriver 接线测试
 //  ─────────────────────────────────────────────────────────────────────────
 //  driver 的职责是「把 monitor / engine / timer / delegate 接起来」，
 //  它本身没有判定逻辑，所以这里只测接线是否真的通、stop() 是否干净。
 //
 //  本机 AXIsProcessTrusted()=false，所以必须用 permissionCheck = { true } 接缝
-//  把权限门打开（这是 core-engine 提供的非契约测试接缝）。
+//  把权限门打开（这是 提供的非契约测试接缝）。
 //  ─────────────────────────────────────────────────────────────────────────
 
 import Foundation
@@ -184,7 +184,7 @@ func runDriverTests() {
     }
 
     test("driver：假事件源不声明需要授权 → permissionCheck=false 也照样能启动", steps: []) {
-        // 语义（core-engine 已通知）：门槛只看「事件源自己声明的需求」，
+        // 语义（已通知）：门槛只看「事件源自己声明的需求」，
         // 假实现默认不需要授权，所以不该被 permissionCheck 挡掉。
         let probe = FakeProbe()
         probe.windowAtPoint = makeWindow(id: 64, pid: 1000)
