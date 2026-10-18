@@ -386,22 +386,6 @@ h2.wide{max-width:24ch}
 .term .g{color:var(--ok)}
 .term .y{color:var(--warn)}
 
-/* ── 诊断 ─────────────────────────────── */
-.diag{display:grid;grid-template-columns:.85fr 1.15fr;gap:50px;align-items:center}
-@media(max-width:900px){.diag{grid-template-columns:1fr;gap:34px}}
-.reasons{display:flex;flex-wrap:wrap;gap:7px;margin-top:28px}
-.reasons code{
-  font-family:var(--fm);font-size:11.5px;padding:5px 10px;border-radius:7px;
-  background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--ink2);
-  transition:.3s;
-}
-.reasons code:hover{background:rgba(53,224,255,.12);border-color:rgba(53,224,255,.35);color:var(--acc2)}
-.diag-term{border:1px solid var(--line);border-radius:14px;background:rgba(0,0,0,.55);overflow:hidden}
-.diag-term pre{padding:20px 22px;overflow-x:auto;font-family:var(--fm);font-size:11.5px;line-height:2.1;color:var(--muted)}
-.diag-term .k{color:var(--acc2)}
-.diag-term .v{color:var(--ink2)}
-.diag-term .ok{color:var(--ok)}
-.diag-term .no{color:var(--muted);opacity:.6}
 @media(max-width:860px){}
 @media(max-width:880px){}
 
@@ -743,50 +727,6 @@ footer{border-top:1px solid var(--line);padding:40px 0;position:relative}
 </section>
 
 <!-- ══════════ 诊断 ══════════ -->
-<section class="sec" id="diag">
-  <div class="wrap sec-inner">
-    <div class="diag">
-      <div>
-        <span class="kicker rv">Diagnostics</span>
-        <h2 class="rv">「为什么没生效」直接看这里</h2>
-        <p class="lede rv" style="margin-top:20px">
-          菜单栏图标 → 诊断信息。这里最有用的一栏是<b>忽略原因计数</b> ——
-          每个忽略原因都有中文解释和累计次数，不用猜、不用翻日志。
-        </p>
-        <div class="reasons rv rv-d2">
-          <code>总开关关闭</code><code>正在拖拽</code><code>按住修饰键</code><code>指针在菜单栏</code>
-          <code>指针下没有窗口</code><code>HoverFocus 自己的窗口</code><code>系统 UI</code><code>目标 App 被隐藏</code>
-          <code>非普通窗口</code><code>命中排除名单</code><code>已经是当前焦点窗口</code><code>冷却中</code>
-          <code>前台 App 全屏中</code><code>窗口不在当前 Space</code><code>单行文本编辑中</code>
-        </div>
-      </div>
-      <div class="diag-term rv rv-d2">
-        <div class="term-bar"><span>菜单栏 → 诊断信息</span></div>
-        <pre><span class="k">版本</span>              <span class="v">0.1.0</span>
-<span class="k">鼠标监听</span>          <span class="ok">运行中</span>
-<span class="k">辅助功能权限</span>      <span class="no">未授予（不影响使用）</span>
-<span class="k">当前事件源</span>        <span class="v">polling · 零权限</span>
-<span class="k">命中精度</span>          <span class="v">降级 → 授权后变精确</span>
-<span class="k">SkyLight 私有符号</span>  <span class="ok">可用</span>
-
-<span class="k">忽略原因计数</span>
-  <span class="no">sameWindow</span>        <span class="v">1 482</span>
-  <span class="no">dwellPending</span>      <span class="v">206</span>
-  <span class="no">inMenuBar</span>         <span class="v">94</span>
-  <span class="no">dragging</span>          <span class="v">37</span>
-  <span class="no">modifiersHeld</span>     <span class="v">11</span>
-  <span class="no">cooldown</span>          <span class="v">9</span>
-  <span class="no">ownApp</span>            <span class="v">4</span>
-
-<span class="k">最近动作</span>
-  <span class="v">策略 skyLightNoRaise</span>
-  <span class="v">成为前台 是 · 置顶了 否</span>
-  <span class="k">耗时</span> <span class="ok">0.74ms</span></pre>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ══════════ CTA ══════════ -->
 <section class="wrap">
   <div class="cta rv">
