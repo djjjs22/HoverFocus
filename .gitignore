@@ -5,3 +5,13 @@ dist/
 *.swiftmodule
 .DS_Store
 /tmp/
+
+# ── 仅本地：不对外暴露的内部文件 ─────────────────────────────────────────
+# 这些是开发过程的记录和内部流程脚本（验证报告、详细设计文档、
+# 内部角色分工的验收脚本），不适合出现在公开仓库里。
+# 本地照常使用，只是不进版本控制；需要时可从 git 历史取回。
+docs/local/
+docs/README-full.md
+docs/VERIFICATION.md
+docs/menubar-badge.png
+Scripts/lead-acceptance.sh

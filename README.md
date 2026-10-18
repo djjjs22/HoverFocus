@@ -73,7 +73,7 @@ cd HoverFocus && make install
 **做不到的事不装。** 「不置顶」依赖私有符号，符号不存在时会退回公开 API，
 那时窗口会被顶上来 —— 程序会在诊断里明确报「置顶了 = 是」，不假装成功。
 
-**已知边界写在文档里。** 未授权时窗口重叠、圆角、阴影可能判错；
+**已知边界说在明面上。** 未授权时窗口重叠、圆角、阴影可能判错；
 「低延迟」模式是否真比轮询更跟手没做过端到端对比，所以默认仍用轮询；
 极短促的拖拽理论上可能漏判。这些都没藏着。
 
@@ -81,31 +81,19 @@ cd HoverFocus && make install
 
 ```bash
 make app     # 构建 build/HoverFocus.app
-make test    # 116 用例 / 281 断言
+make test    # 跑测试
 make dmg     # 打包 dist/HoverFocus-0.1.0.dmg
 make dmg-verify  # 挂载 dmg 实测：结构 / 签名 / 拖拽后能不能跑
 ```
 
-不用 `swift build` / `swift test` —— 本机 Command Line Tools 安装不一致，`ManifestAPI` 的 `.dylib` 不导出 `PackageDescription.swiftmodule` 需要的符号，SwiftPM 会在编译 manifest 阶段就失败。所以用一条 `swiftc` 命令单模块编译，测试是手写运行器。
-
-## 文档
-
-| 文件 | 内容 |
-|---|---|
-| [docs/README-full.md](docs/README-full.md) | 完整文档：全部设置项、权限细节、代码签名、排障表、17 步判定契约 |
-| [docs/VERIFICATION.md](docs/VERIFICATION.md) | 验证报告：每个结论标注「实测通过 / 仅单测覆盖 / 未验证」 |
-| [docs/DMG-README.txt](docs/DMG-README.txt) | 打进 dmg 里的使用说明 |
-
-验证报告里不把「没测的」写成「通过」。目前 116 个用例 / 281 个断言 / 0 失败，端到端悬停测试连跑三轮 z 序均未变化。
+不用 SwiftPM，一条 `swiftc` 命令把全部源文件编成同一个模块，测试是手写运行器。
 
 ## 目录
 
 ```
 Sources/HoverFocus/       菜单栏 App：UI、设置窗口、权限引导、自检
-Sources/HoverFocusCore/   契约层与核心：判定引擎、窗口探测、事件源、激活策略
+Sources/HoverFocusCore/   判定引擎、窗口探测、事件源、激活策略
 Scripts/                  build / install / make-dmg / test
-Tools/                    探针、dmg 验证
-docs/                     完整文档与验证报告
 ```
 
 ## 许可
