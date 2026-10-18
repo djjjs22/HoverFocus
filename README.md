@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="Resources/AppIcon.icns" width="120" alt="HoverFocus">
+  <img src="logo.png" width="120" alt="HoverFocus">
   <h1>HoverFocus</h1>
   <p>鼠标悬停到窗口，键盘焦点就切过去 —— 不用点击。</p>
 </div>
