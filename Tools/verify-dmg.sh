@@ -57,16 +57,17 @@ echo "   Applications -> ${LINK}"
 echo "   ✅ 结构正确"
 
 echo
-echo "=== 2. app 在 Finder 里是否隐藏 ==="
-# 不用 mdls：它依赖 Spotlight 索引，对刚挂载、尚未索引的卷会静默返回空，
-# 在 set -e 下直接中断脚本（第一版就踩了这个）。
-# ls -O 输出里 chflags 含 "hidden" 才算真的隐藏。
-FLAGS="$(ls -ldO "$T/HoverFocus.app" 2>/dev/null | tr ',' '\n' | grep -o 'hidden' || true)"
-if [ -n "$FLAGS" ]; then
-  echo "   ✅ 带 hidden 标记（拖拽窗口里只显示软链接）"
-else
-  echo "   ⚠️  没找到 hidden 标记（不影响使用，只是窗口里会同时显示 app）"
+echo "=== 2. app 必须对用户可见 ==="
+# ⛔ 反向检查：app 被 hidden 标记藏起来是最严重的问题 ——
+#    用户打开 dmg 只看到一个软链接，完全不知道该拖什么。
+# 不用 mdls：它依赖 Spotlight 索引，对刚挂载的卷会静默返回空，
+# 在 set -e 下直接中断脚本（第一版踩过）。
+if ls -ldO "$T/HoverFocus.app" 2>/dev/null | grep -q 'hidden'; then
+  echo "   ❌ app 带着 hidden 标记 —— 用户打开 dmg 看不到它" >&2
+  echo "      检查 Scripts/make-dmg.sh 里是不是多了一句 chflags hidden" >&2
+  exit 1
 fi
+echo "   ✅ app 可见（可拖拽到 Applications）"
 
 echo
 echo "=== 3. 模拟拖拽 ==="

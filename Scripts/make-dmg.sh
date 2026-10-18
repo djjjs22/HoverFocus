@@ -117,26 +117,18 @@ if [ -f "$ROOT/docs/DMG-README.txt" ]; then
   cp "$ROOT/docs/DMG-README.txt" "$STAGE/使用说明.txt"
 fi
 
-# ── 4/5 隐藏 app（拖拽窗口里只看到软链接，视觉干净） ─────────────────────
-# ⚠️ 顺序很关键：**必须在 xattr -cr 之后**。任何 xattr / SetFile 操作都会被
-#    xattr -cr 清空 —— 之前反着写，隐藏标记被自己擦掉了。
+# ── 4/5 图标位置（可选优化） ─────────────────────────────────────────────
+# 标准 dmg 的样子是：左下角 HoverFocus.app，右下角 Applications 软链接，
+# 中间一个箭头 —— 用户一眼就知道要「把 app 拖到 Applications」。
 #
-# 用 chflags hidden，不用 SetFile -a C：
-#   · SetFile -a C 写的是 FinderInfo 扩展属性，在 macOS 26 上对目录不再生效
-#     （实测执行后 FinderInfo 仍是 0x0a，kUFHidden 位没置上，Finder 照样显示）。
-#   · chflags hidden 走 BSD flags 层，是系统级的隐藏位，macOS 26 上依然有效。
-#   · 想用 xattr 直接写 FinderInfo 的隐藏位也不可行：macOS 26 的 xattr 对
-#     FinderInfo 写入一律返回 Errno 34（与长度无关），所有长度都试过。
+# ⛔ **绝对不要给 app 加 hidden 标记**。藏起来只剩一个软链接的话，
+#    用户看到的是「这 dmg 里啥都没有」，不知道该拖什么。
+#    之前版本用 `chflags hidden` 把app 藏了，是错的。
 #
-# 不用改名成 .HoverFocus.app：改名字会破坏 bundle 结构。
-chflags hidden "$STAGE/HoverFocus.app" 2>/dev/null || true
-
-# 自检：确认标记真的打上了，而不是默默失败
-if ls -ldO "$STAGE/HoverFocus.app" 2>/dev/null | grep -q 'hidden'; then
-  echo "   隐藏标记：已设置（拖拽窗口里只显示 Applications 软链接）"
-else
-  echo "   隐藏标记：未生效（不影响使用，只是窗口里会同时显示 app）"
-fi
+# 想排窗口布局需要写 .DS_Store，但挂载点只读写不了，而且正经做法要用
+# osascript 驱动 Finder（会抢前台焦点）。权衡后放弃：app 和软链接
+# 默认就在同一行并排，用户拖拽照样成立，不值得为排版引入副作用。
+# 装 create-dmg（brew install create-dmg）可以一步到位，那之后再考虑。
 
 echo "   暂存内容："
 ls -la "$STAGE" | sed 's/^/     /'
