@@ -6,6 +6,8 @@
 
 macOS 菜单栏小工具。中文界面，纯 Swift，无第三方依赖。
 
+**官网 → [djjjs22.github.io/HoverFocus](https://djjjs22.github.io/HoverFocus/)**
+
 ## 它解决什么
 
 macOS 上键盘输入只会进当前前台 App。想在旁边的窗口里打字，得先点它一下—— 而这一下点击可能顺带把窗口顶上来，把你的布局搅乱。
