@@ -101,6 +101,33 @@ enum SelfTest {
             if let content = window.window?.contentView {
                 ctx.settingsWindowControls = countControls(in: content)
             }
+            // 折叠 / 展开两种几何都要量。实测过的真 bug 正是「展开后窗口底部跑出屏幕」——
+            // 只记折叠态等于没检查，而这台机器看不到屏幕，只能靠这个自检兜住。
+            var layouts: [String: Any] = [:]
+            let original = window.layoutSnapshot().advancedExpanded
+            for expanded in [false, true] {
+                window.setAdvancedExpandedForProbe(expanded)
+                let snap = window.layoutSnapshot()
+                let key = expanded ? "expanded" : "collapsed"
+                layouts[key] = [
+                    "windowHeight": Double(snap.windowHeight),
+                    "advancedHidden": snap.advancedHidden,
+                    "advancedControls": snap.advancedControls,
+                    "commonControls": snap.commonControls,
+                    "fitsOnScreen": snap.windowFitsOnScreen,
+                ]
+                if !snap.windowFitsOnScreen {
+                    ctx.uiErrors.append("设置窗口在\(expanded ? "展开" : "折叠")态下超出屏幕可见区")
+                }
+                if expanded && snap.advancedHidden {
+                    ctx.uiErrors.append("设置窗口展开后高级区仍然是隐藏的")
+                }
+                if !expanded && !snap.advancedHidden {
+                    ctx.uiErrors.append("设置窗口折叠后高级区没有隐藏")
+                }
+            }
+            window.setAdvancedExpandedForProbe(original)
+            ctx.settingsLayout = layouts
             window.close()
         } else {
             ctx.uiErrors.append("设置窗口构造返回 nil")
@@ -139,6 +166,7 @@ enum SelfTest {
         var menuTopLevelTitles: [String] = []
         var settingsWindowBuilt = false
         var settingsWindowControls = 0
+        var settingsLayout: [String: Any] = [:]
         var uiErrors: [String] = []
     }
 
@@ -222,6 +250,7 @@ enum SelfTest {
         payload["monitorMode"] = ctx.env?.monitorMode.rawValue ?? "unknown"
         payload["monitorRequiresAccessibility"] = ctx.env?.monitorRequiresAccessibility ?? false
         payload["hitTestMode"] = (ctx.env?.probe as? WindowProbe)?.hitTestMode.rawValue ?? "unknown"
+        payload["lastHitRoute"] = (ctx.env?.probe as? WindowProbe)?.lastHitRoute.rawValue ?? "unknown"
         payload["skyLightAvailable"] = SkyLightBridge.isAvailable
         if ctx.uiSmokeRequested {
             payload["uiSmoke"] = [
@@ -230,6 +259,7 @@ enum SelfTest {
                 "menuTopLevelTitles": ctx.menuTopLevelTitles,
                 "settingsWindowBuilt": ctx.settingsWindowBuilt,
                 "settingsWindowControls": ctx.settingsWindowControls,
+                "settingsLayout": ctx.settingsLayout,
                 "errors": ctx.uiErrors,
             ]
         }

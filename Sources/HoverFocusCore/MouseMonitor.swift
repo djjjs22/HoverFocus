@@ -37,6 +37,10 @@ final class MouseMonitor: MouseEventSource {
 
     /// moved/dragged 的最小间隔，约 60Hz。对 focus-follows-mouse 足够，且能把 CPU 压住。
     private let minEmitInterval: TimeInterval = 1.0 / 60.0
+    /// tap 回调超过这个耗时就算异常（它跑在会话事件流最前端，会拖慢全系统鼠标）
+    private static let slowCallbackThreshold: TimeInterval = 0.002
+    /// 累计慢回调次数（诊断用）
+    private(set) var slowCallbackCount = 0
 
     init() {}
 
@@ -125,6 +129,23 @@ final class MouseMonitor: MouseEventSource {
             return
         }
 
+        // 看门狗：这个回调跑在会话事件流的最前端，**慢一点就是全系统鼠标卡顿**。
+        // 曾经因为没有这个度量，一个「回调里同步跑 AX 命中测试」的问题藏了很久，
+        // 表现出来是「自绘标题栏的窗口拖不动」—— 极难联想到事件 tap。
+        let entered = ProcessInfo.processInfo.systemUptime
+        defer {
+            let cost = ProcessInfo.processInfo.systemUptime - entered
+            if cost > Self.slowCallbackThreshold {
+                slowCallbackCount += 1
+                // 只偶尔打一行，避免刷屏把问题本身变成新的卡顿源
+                if slowCallbackCount == 1 || slowCallbackCount % 100 == 0 {
+                    NSLog("[HoverFocus] ⚠️ tap 回调耗时 \(String(format: "%.2f", cost * 1000))ms"
+                          + "（阈值 \(String(format: "%.1f", Self.slowCallbackThreshold * 1000))ms）；"
+                          + "累计 \(slowCallbackCount) 次 —— 会拖慢全系统鼠标事件")
+                }
+            }
+        }
+
         let sample = MouseSample(
             point: event.location,
             timestamp: ProcessInfo.processInfo.systemUptime,
@@ -135,31 +156,60 @@ final class MouseMonitor: MouseEventSource {
     }
 
     /// 限流发送；被丢掉时记成 pending，在窗口结束时补发，保证最终位置一定被送达。
+    ///
+    /// ⚠️ **这里绝对不能在 tap 回调里同步跑引擎。**
+    ///
+    /// tap 装在 `.cgSessionEventTap` 的 `.headInsertEventTap` 位置 —— 它是会话事件流的最前端，
+    /// **回调不返回，事件就不会继续投递给目标 App**。而引擎会做 AX 命中测试
+    /// （实测未命中缓存 p50 1ms / p90 5ms / max 96ms）。于是每一次命中测试都等于把
+    /// 整个系统的鼠标事件流卡住那么久。
+    ///
+    /// 真实现象（2026-10-20 实测）：**自绘标题栏的 App 窗口拖不动**。
+    /// 这类 App（Edge / 微信 / Electron 系）用的是 macOS 的 drag-trait 手势，
+    /// 对 mousedown 与 drag 之间的时序很敏感；事件流被卡一下，手势就激活失败，
+    /// WindowServer 报 `no client initiated window drag trait gesture to activate for mouse`，
+    /// 表现就是「能拖边缘改大小，但拖不动窗口」，而且**轻按快拖必失败、用力按反而能成功**。
+    ///
+    /// 所以：所有投递一律走异步，回调本身只做「记一个样本 + 排一次投递」，
+    /// 保证 O(1) 返回。代价是判定晚一个 runloop 跳（<1ms），相对 120ms 的 dwell 可忽略。
     private func emit(_ sample: MouseSample, throttled: Bool) {
-        guard let onSample else { return }
-        let elapsed = sample.timestamp - lastEmitAt
+        guard onSample != nil else { return }
 
-        if throttled && elapsed < minEmitInterval {
+        // 非移动事件（按下 / 松开 / 修饰键）也必须异步投递 —— 它们同样在事件流的关键路径上
+        if !throttled {
+            lastEmitAt = sample.timestamp
+            pendingSample = sample
+            schedulePendingFlush(after: 0)
+            return
+        }
+
+        let elapsed = sample.timestamp - lastEmitAt
+        if elapsed < minEmitInterval {
             pendingSample = sample
             schedulePendingFlush(after: minEmitInterval - elapsed)
             return
         }
 
-        pendingSample = nil
         lastEmitAt = sample.timestamp
-        onSample(sample)
+        pendingSample = sample
+        schedulePendingFlush(after: 0)
     }
 
+    /// 把 pending 样本异步投递出去。`delay <= 0` 时只做一次 runloop 跳（不额外等待）。
     private func schedulePendingFlush(after delay: TimeInterval) {
         guard !pendingFlushScheduled else { return }
         pendingFlushScheduled = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + max(delay, 0.001)) { [weak self] in
+        let fire = { [weak self] in
             guard let self else { return }
             self.pendingFlushScheduled = false
             guard let sample = self.pendingSample else { return }
             self.pendingSample = nil
-            self.lastEmitAt = sample.timestamp
             self.onSample?(sample)
+        }
+        if delay <= 0 {
+            DispatchQueue.main.async(execute: fire)
+        } else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: fire)
         }
     }
 

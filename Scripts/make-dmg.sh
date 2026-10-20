@@ -2,7 +2,7 @@
 #  HoverFocus DMG 打包脚本
 #
 #  用法：
-#    bash Scripts/make-dmg.sh              # 打包 → dist/HoverFocus-0.1.0.dmg
+#    bash Scripts/make-dmg.sh              # 打包 → dist/HoverFocus-0.1.1.dmg
 #    bash Scripts/make-dmg.sh --build      # 先重新构建 app 再打包
 #    bash Scripts/make-dmg.sh --open       # 打包后保持挂载（排障用）
 #    bash Scripts/make-dmg.sh --yes        # 覆盖已存在的 dmg 不询问
@@ -171,28 +171,35 @@ else
 fi
 
 # 挂载一次，验证里面的 app 能读、签名没坏
+#
+# ⚠️ 必须用 diskutil，**不能用 `hdiutil attach -mountpoint`**：
+# 那组参数已废弃，且 `hdiutil detach <挂载点>` 会**静默失败** ——
+# 每次打包都会泄漏一个挂载记录。攒到几个之后，系统认为这个 dmg「已经挂着了」，
+# 用户双击它**不会有任何反应**（这个故障真实发生过：攒了 9 个）。
+# 另外用 trap 保证异常退出也卸载，而不是只在正常路径卸载。
 echo "   验证 dmg 内容…"
 VP="$(mktemp -d "/tmp/hf-verify.XXXXXX")"
-if hdiutil attach "$DMG" -mountpoint "$VP" -nobrowse -readonly -quiet 2>/dev/null; then
+cleanup_verify() { diskutil eject "$VP" >/dev/null 2>&1 || true; rm -rf "$VP"; }
+trap cleanup_verify EXIT
+
+if diskutil image attach "$DMG" --mountPoint "$VP" --mountOptions nobrowse,ro >/dev/null 2>&1; then
   if [ -d "$VP/HoverFocus.app" ]; then
     echo "   ✅ 内含 HoverFocus.app"
   else
     echo "   ❌ dmg 里没有 HoverFocus.app" >&2
-    hdiutil detach "$VP" -quiet 2>/dev/null || true
-    rm -rf "$VP"; exit 1
+    exit 1
   fi
   if codesign -v "$VP/HoverFocus.app" 2>&1; then
     echo "   ✅ dmg 里的 app 签名仍然有效"
   else
     echo "   ❌ dmg 里的 app 签名校验失败 —— 暂存拷贝破坏了签名" >&2
-    hdiutil detach "$VP" -quiet 2>/dev/null || true
-    rm -rf "$VP"; exit 1
+    exit 1
   fi
-  hdiutil detach "$VP" -quiet 2>/dev/null || true
 else
   echo "   ⚠️  挂载验证失败，跳过" >&2
 fi
-rm -rf "$VP"
+cleanup_verify
+trap - EXIT
 
 rm -rf "$STAGE"
 

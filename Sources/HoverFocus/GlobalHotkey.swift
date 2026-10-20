@@ -35,7 +35,9 @@ final class GlobalHotkey {
     func register(keyCode: UInt32, modifiers: UInt32, handler: @escaping () -> Void) -> Bool {
         unregister()
         onFire = handler
-        Self.active = self
+        // ⚠️ **注册成功之后**才把自己设为 active。提前设的话，注册失败时
+        // cleanup 会把 active 清成 nil，而此前那个实例的热键仍被系统注册着 →
+        // 按键被系统消费，但没有任何反应（静默的哑巴热键）。
 
         var eventType = EventTypeSpec(eventClass: OSType(kEventClassKeyboard),
                                       eventKind: UInt32(kEventHotKeyPressed))
@@ -61,6 +63,7 @@ final class GlobalHotkey {
         }
 
         isRegistered = true
+        Self.active = self
         return true
     }
 
@@ -85,7 +88,8 @@ final class GlobalHotkey {
             self.eventHandlerRef = nil
         }
         onFire = nil
-        if Self.active === self { Self.active = nil }
+        // 这里**不动** Self.active：只有注册成功才会把自己设成 active，
+        // 所以失败路径本来就不该碰它 —— 碰了会把上一个可用实例打哑。
         isRegistered = false
     }
 

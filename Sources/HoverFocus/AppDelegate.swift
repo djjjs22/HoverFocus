@@ -93,6 +93,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, FocusD
 
         installPermissionPolling()
 
+        // 屏幕参数变化（拔外接屏 / 改分辨率 / 改 Dock 位置）→ 重新约束设置窗口。
+        // 不做的话，外接屏拔掉后窗口可能部分在屏外，要等用户重开设置才发现。
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(screenParametersChanged),
+            name: NSApplication.didChangeScreenParametersNotification, object: nil)
+
         // 全局快捷键 ⌃⌥H。放在 status item 之后：注册失败要在菜单里如实显示。
         installGlobalHotkey()
 
@@ -110,6 +116,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, FocusD
         env?.driver.stop()
         permissionTimer?.invalidate()
         permissionTimer = nil
+        // 显式注销全局热键。进程退出系统也会回收，但显式注销能覆盖
+        // 「退出过程中刚好按了 ⌃⌥H」这个极小窗口，成本为零。
+        globalHotkey?.unregister()
+        globalHotkey = nil
+        NotificationCenter.default.removeObserver(self)
         // 还原自动终止设置（正常退出时其实无所谓，但别留一个被改过的全局状态）
         ProcessInfo.processInfo.enableAutomaticTermination("HoverFocus 正在退出")
         ProcessInfo.processInfo.enableSuddenTermination()
@@ -278,6 +289,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, FocusD
         guard let probe = env?.probe as? WindowProbe else { return nil }
         switch probe.hitTestMode {
         case .accessibility:
+            // 有权限 ≠ 每次真的走通了 AX。不实现 accessibilityHitTest: 的 App
+            // （实测：Telegram 返回 -25208）每次都会退到窗口列表矩形匹配 ——
+            // 这时必须说出来，不能让用户以为刚才那一击是精确命中的。
+            if probe.lastHitRoute == .windowListFallback {
+                return "精确模式（AX 命中测试）；但最近一次悬停的窗口不支持 AX 命中，已退到窗口列表匹配"
+            }
             return "精确模式（AX 命中测试）"
         case .windowListFallback:
             return "⚠️ 降级模式（窗口列表）：未授予辅助功能权限，窗口重叠/圆角处可能判错"
@@ -673,6 +690,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, FocusD
         return SettingsWindowController(store: env.settings,
                                         monitorMode: env.monitorMode,
                                         onMonitorModeChange: { _ in })
+    }
+
+    @objc private func screenParametersChanged() {
+        // 只重算几何，不改折叠状态；窗口还没建就什么都不做
+        settingsWindowController?.reclampToVisibleFrame()
     }
 
     // MARK: - 全局快捷键

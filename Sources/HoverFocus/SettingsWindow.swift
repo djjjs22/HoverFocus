@@ -27,9 +27,21 @@ final class SettingsWindowController: NSWindowController, NSTableViewDataSource,
     /// 高级区是否展开。默认 false（折叠）—— bool(forKey:) 在键不存在时就是 false。
     static let advancedExpandedKey = "HoverFocusUI.settingsAdvancedExpanded"
 
+    /// 折叠状态。带内存镜像 —— 直接读写 UserDefaults 的话，
+    /// 万一写入失败（偏好域只读/损坏），**下一次点击**会从磁盘读回旧值，
+    /// `!advancedExpanded` 算反 → 点了没反应。内存镜像保证本次会话内 UI 始终自洽。
+    private var advancedExpandedCache: Bool?
     private var advancedExpanded: Bool {
-        get { UserDefaults.standard.bool(forKey: Self.advancedExpandedKey) }
-        set { UserDefaults.standard.set(newValue, forKey: Self.advancedExpandedKey) }
+        get {
+            if let cached = advancedExpandedCache { return cached }
+            let v = UserDefaults.standard.bool(forKey: Self.advancedExpandedKey)
+            advancedExpandedCache = v
+            return v
+        }
+        set {
+            advancedExpandedCache = newValue
+            UserDefaults.standard.set(newValue, forKey: Self.advancedExpandedKey)
+        }
     }
 
     // MARK: - 依赖
@@ -453,14 +465,22 @@ final class SettingsWindowController: NSWindowController, NSTableViewDataSource,
         let fitting = rootStack?.fittingSize.height ?? content.frame.height
 
         let screen = window.screen ?? NSScreen.main
-        let available = (screen?.visibleFrame.height ?? 900) - chrome - 24
+        let visible = screen?.visibleFrame ?? .zero
+        let available = (visible.height > 0 ? visible.height : 900) - chrome - 24
         let targetContentHeight = min(fitting, max(240, available))
 
         var frame = window.frame
         let topEdge = frame.maxY                       // 顶边固定
         let newHeight = targetContentHeight + chrome
         frame.size.height = newHeight
-        frame.origin.y = topEdge - newHeight           // 往下收
+        var newY = topEdge - newHeight                 // 往下收
+        // ⚠️ 只钳高度、不钳位置是不够的：展开后内容更高时，窗口会从**底部**跑出屏幕。
+        // 实测（本机 visibleFrame 高 1040）：展开后底边低于 visibleFrame.minY 53pt，
+        // 底部控件被 Dock 区域挡住。这里再把整扇窗约束进可见区。
+        if visible.height > 0 {
+            newY = min(max(newY, visible.minY), visible.maxY - newHeight)
+        }
+        frame.origin.y = newY
         window.setFrame(frame, display: true, animate: animated)
     }
 
@@ -484,7 +504,14 @@ final class SettingsWindowController: NSWindowController, NSTableViewDataSource,
                                   advancedControls: 0, windowFitsOnScreen: false)
         }
         content.layoutSubtreeIfNeeded()
-        let visible = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 0
+        // ⚠️ 这里必须同时判「高度」和「位置」。只判高度会漏掉真实故障：
+        // 展开后窗口高度没超 visibleFrame，但底边掉到屏幕下方（实测 53pt）——
+        // 自检会报 true，和实现共享同一个盲区，等于没检查。
+        let visible = (window.screen ?? NSScreen.main)?.visibleFrame ?? .zero
+        let f = window.frame
+        let fits = visible.height <= 0
+            || (f.minY >= visible.minY - 0.5 && f.maxY <= visible.maxY + 0.5
+                && f.minX >= visible.minX - 0.5 && f.maxX <= visible.maxX + 0.5)
         return LayoutSnapshot(
             advancedExpanded: advancedExpanded,
             advancedHidden: advancedStack?.isHidden ?? true,
@@ -493,12 +520,19 @@ final class SettingsWindowController: NSWindowController, NSTableViewDataSource,
             advancedHeight: advancedStack?.fittingSize.height ?? 0,
             commonControls: countControls(in: commonStack),
             advancedControls: countControls(in: advancedStack),
-            windowFitsOnScreen: visible == 0 || window.frame.height <= visible)
+            windowFitsOnScreen: fits)
     }
 
-    /// 供探针切换折叠状态（等价于点标题按钮，但不走动画）
+    /// 屏幕参数变化（拔外接屏、改分辨率、Dock 移位）后重新把窗口约束进可见区。
+    /// 不改折叠状态、不写偏好，纯几何修正。
+    func reclampToVisibleFrame() {
+        updateWindowSize(animated: false)
+    }
+
+    /// 供探针切换折叠状态（等价于点标题按钮，但不走动画）。
+    /// **不持久化** —— 探针/自检不该改用户的偏好。
     func setAdvancedExpandedForProbe(_ expanded: Bool) {
-        setAdvancedExpanded(expanded, persist: true, animated: false)
+        setAdvancedExpanded(expanded, persist: false, animated: false)
     }
 
     private func countControls(in view: NSView?) -> Int {

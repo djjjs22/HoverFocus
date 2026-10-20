@@ -17,7 +17,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-DMG="${1:-$ROOT/dist/HoverFocus-0.1.0.dmg}"
+DMG="${1:-$ROOT/dist/HoverFocus-0.1.1.dmg}"
 
 if [ ! -f "$DMG" ]; then
   echo "找不到 dmg：$DMG" >&2

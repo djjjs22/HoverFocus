@@ -60,6 +60,9 @@ cd HoverFocus && make install
 修饰键里 Caps Lock 和 fn 不算意图修饰键，按住它们切窗口是正常操作。
 文本编辑守卫只挡单行输入框，多行文本区故意不挡 —— 否则在聊天框里打字时永远切不了窗口。
 
+**⌃⌥H 一键暂停/恢复。** 录屏讲解、多窗口对照录入、窗口化游戏时按一下暂停，
+菜单栏图标变灰；再按一次恢复。用鼠标去关一个「鼠标一动就出问题」的功能本来就自相矛盾。
+
 **排除名单。** 不想被抢焦点的 App 加进名单，重启后依然有效。
 鼠标停在目标 App 上 → 点菜单栏 → 一键排除。按 Bundle ID 匹配，不是靠显示名。
 
@@ -84,7 +87,7 @@ cd HoverFocus && make install
 ```bash
 make app     # 构建 build/HoverFocus.app
 make test    # 跑测试
-make dmg     # 打包 dist/HoverFocus-0.1.0.dmg
+make dmg     # 打包 dist/HoverFocus-0.1.1.dmg
 make dmg-verify  # 挂载 dmg 实测：结构 / 签名 / 拖拽后能不能跑
 ```
 

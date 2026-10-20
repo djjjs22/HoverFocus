@@ -6,8 +6,12 @@
 //        不要用「窗口矩形包含该点」的朴素做法 —— 窗口重叠、圆角、阴影、子窗口、透明区域
 //        都会判错，这正是很多同类工具「边缘处焦点乱跳」的原因。
 //
-//  性能：命中测试是 Mach IPC（实测 0.2–2ms），而鼠标事件可达 120Hz。
-//        所以两层缓存：位移 < 3pt 直接复用上次结果；窗口列表信息 100ms 一次。
+//  性能：命中测试是 Mach IPC，而鼠标事件可达 120Hz。
+//        实测（n=100）：未命中缓存 p50 1.0ms / p90 5.0ms / max 96ms；
+//        命中缓存 0.0001ms。所以两层缓存是必须的：
+//        位移 < 3pt 直接复用上次结果；窗口列表信息 100ms 一次。
+//        注意 AX 调用跑在**主线程**上，超时 0.25s —— 遇到卡死的目标 App
+//        最坏会阻塞主线程上百毫秒（实测 73ms）。要彻底解决需把它挪出主线程。
 //
 //  Space 守卫（用户明确要求的硬性验收项）：
 //        用 CGWindowListCopyWindowInfo(.optionOnScreenOnly) 建立「当前 Space 上可见窗口」集合。
@@ -69,7 +73,10 @@ final class WindowProbe: WindowProbing {
     /// 窗口列表缓存有效期
     private static let infoCacheTTL: TimeInterval = 0.10
     /// focusedWindow 缓存有效期。必须明显小于 Settings.cooldown 的下限（见文件头说明）
-    private static let focusCacheTTL: TimeInterval = 0.05
+    /// 50ms → 100ms。原来的 50ms **比 tick 间隔（33ms）还短，等于没缓存**：
+    /// 30Hz 的 tick 每次都会打一次跨进程 AX。100ms 仍小于 cooldown(150ms)，
+    /// 不会让「动作后缓存未刷新」的问题复活。
+    private static let focusCacheTTL: TimeInterval = 0.10
     /// AX 单次请求超时，防止目标 App 卡死时把我们拖住
     private static let axTimeout: Float = 0.25
     /// 向上找 AXWindow 的最大层数
@@ -122,6 +129,19 @@ final class WindowProbe: WindowProbing {
     /// 降级模式下「窗口重叠时可能判错」，不能假装和 AX 模式一样准。
     private(set) var hitTestMode: HitTestMode = Permissions.isAccessibilityTrusted ? .accessibility : .windowListFallback
 
+    /// 命中测试**实际**走的路线。
+    ///
+    /// 必须和 `hitTestMode` 分开：`hitTestMode` 描述的是「本机能力」（有没有权限），
+    /// 而这个是「这一次实际发生了什么」。两者混在一起会骗人 ——
+    /// 不实现 `accessibilityHitTest:` 的 App（实测：Telegram 返回 -25208）每次都走矩形匹配，
+    /// 但诊断面板会显示「精确模式（AX 命中测试）」。这个项目最讲「如实交代」，
+    /// 不能让用户以为那一击是精确命中的。
+    enum HitTestRoute: String {
+        case accessibility      // 走通了 AX 精确命中
+        case windowListFallback // 退到窗口列表（矩形包含）匹配
+    }
+    private(set) var lastHitRoute: HitTestRoute = .accessibility
+
     /// 刷新 hitTestMode（权限可能在运行中被授予/撤销，不需要重启 App）
     func refreshHitTestMode() {
         hitTestMode = Permissions.isAccessibilityTrusted ? .accessibility : .windowListFallback
@@ -131,8 +151,40 @@ final class WindowProbe: WindowProbing {
 
     func ownPID() -> pid_t { ownPIDValue }
 
+    /// 指针必须「停下」这么久，才值得做一次真正的命中测试。
+    ///
+    /// 为什么需要这道闸门：命中测试是**跨进程 AX 调用**（`AXUIElementCopyElementAtPosition`），
+    /// 请求会被路由到「指针下那个 App 的主线程」去计算 —— Chromium 系（Edge）要遍历无障碍树，
+    /// 很贵。原来按 60Hz 打，等于每秒给目标 App 塞 60 次同步 AX 请求，**把它的 UI 线程压住**，
+    /// 于是它来不及响应 mousedown，自绘标题栏的 drag-trait 手势激活失败。
+    /// 真实现象（2026-10-20 定位）：**Edge / 微信 / Electron 系窗口拖不动**，
+    /// 而系统原生窗口正常 —— 因为只有自绘标题栏的 App 走 drag-trait 那条路。
+    ///
+    /// 而 dwell 的语义本来就是「指针在同一个窗口上**停住**」：指针在移动时，
+    /// 判定结果无论如何都会被丢弃。所以移动期间干脆不查 —— 行为不变，
+    /// 跨进程请求量却降了一个数量级。
+    private static let settleDelay: TimeInterval = 0.06
+    private var lastMoveAt: TimeInterval = 0
+    private var lastMovePoint: CGPoint?
+
     func window(atQuartzPoint point: CGPoint) -> WindowRef? {
         let now = ProcessInfo.processInfo.systemUptime
+
+        // 先记录「指针什么时候动过」
+        if let last = lastMovePoint {
+            if hypot(point.x - last.x, point.y - last.y) > Self.moveTolerance {
+                lastMoveAt = now
+                lastMovePoint = point
+            }
+        } else {
+            lastMovePoint = point
+            lastMoveAt = now
+        }
+
+        // 还在动 / 刚停下 → 不做跨进程查询，也不判定。
+        // 返回 nil 会让引擎走 clearPending（安全侧），不会误抢焦点。
+        if now - lastMoveAt < Self.settleDelay { return nil }
+
         if let cached = hitCache,
            now - cached.at < Self.hitCacheTTL,
            hypot(point.x - cached.point.x, point.y - cached.point.y) < Self.moveTolerance {
@@ -164,8 +216,16 @@ final class WindowProbe: WindowProbing {
         return false
     }
 
+    /// 隐藏状态变化极少（只有 cmd-H），但**原来每次判定都查一遍** ——
+    /// 实测 30Hz tick 下每秒 24 次。加按 pid 的短缓存。
+    private var hiddenCache: [pid_t: (hidden: Bool, at: TimeInterval)] = [:]
+
     func isAppHidden(pid: pid_t) -> Bool {
-        NSRunningApplication(processIdentifier: pid)?.isHidden ?? false
+        let now = ProcessInfo.processInfo.systemUptime
+        if let c = hiddenCache[pid], now - c.at < Self.appStateCacheTTL { return c.hidden }
+        let hidden = NSRunningApplication(processIdentifier: pid)?.isHidden ?? false
+        hiddenCache[pid] = (hidden, now)
+        return hidden
     }
 
     // MARK: - 文本编辑守卫（修复 AutoFocus 的老 bug）
@@ -205,8 +265,27 @@ final class WindowProbe: WindowProbing {
         return true
     }
 
+    /// 前台 App 是否全屏。**原来完全没有缓存**，30Hz tick 下每秒 24 次跨进程 AX 查询
+    /// 全打在正在使用的那款 App 上（实测就是它把 Edge 的主线程压住、导致窗口拖不动）。
+    /// 全屏状态切换是低频事件，缓存 0.5s 完全够用。
+    private static let appStateCacheTTL: TimeInterval = 1.0
+    private static let fullScreenCacheTTL: TimeInterval = 0.5
+    private var fullScreenCache: (pid: pid_t, isFull: Bool, at: TimeInterval)?
+
     func frontmostAppIsFullScreen() -> Bool {
         guard let app = NSWorkspace.shared.frontmostApplication else { return false }
+        let now = ProcessInfo.processInfo.systemUptime
+        if let c = fullScreenCache, c.pid == app.processIdentifier,
+           now - c.at < Self.fullScreenCacheTTL {
+            return c.isFull
+        }
+        let result = computeFrontmostAppIsFullScreen(app: app)
+        fullScreenCache = (app.processIdentifier, result, now)
+        return result
+    }
+
+    /// 真正的计算（无缓存）。外层的 frontmostAppIsFullScreen 负责缓存。
+    private func computeFrontmostAppIsFullScreen(app: NSRunningApplication) -> Bool {
 
         if Permissions.isAccessibilityTrusted {
             let appElement = AXUIElementCreateApplication(app.processIdentifier)
@@ -262,9 +341,11 @@ final class WindowProbe: WindowProbing {
         // 直接走窗口列表降级，别白花一次 IPC 的时间。
         guard Permissions.isAccessibilityTrusted else {
             hitTestMode = .windowListFallback
+            lastHitRoute = .windowListFallback
             return hitTestViaWindowList(point)
         }
         hitTestMode = .accessibility
+        lastHitRoute = .accessibility
 
         var elementRef: AXUIElement?
         let error = AXUIElementCopyElementAtPosition(systemWide, Float(point.x), Float(point.y), &elementRef)
@@ -277,15 +358,18 @@ final class WindowProbe: WindowProbing {
         // 用户看到的现象就是「滑到那个窗口上没反应」。
         // 同理，AX 树稀疏/层级过深导致找不到 AXWindow 时也要兜底。
         guard error == .success, let element = elementRef else {
+            lastHitRoute = .windowListFallback
             return hitTestViaWindowList(point)
         }
         guard let windowElement = findWindowElement(from: element) else {
+            lastHitRoute = .windowListFallback
             return hitTestViaWindowList(point)
         }
 
         var pid: pid_t = 0
         guard AXUIElementGetPid(windowElement, &pid) == .success else {
             // 同上：AX 侧拿不到 pid 也别放弃，退回窗口列表命中测试。
+            lastHitRoute = .windowListFallback
             return hitTestViaWindowList(point)
         }
 
@@ -338,9 +422,8 @@ final class WindowProbe: WindowProbing {
     ///
     /// 与 AX 路径的**已知差异**（不要假装两者等价）：
     /// - 判不出圆角、阴影、透明区域、子窗口；窗口重叠时只能按矩形包含判断。
-    /// - 这里会**跳过系统 UI 窗口继续往后找**（因为整张列表都在手上），
-    ///   而 AX 路径只能拿到最顶层那一个元素、没法继续 —— 所以在系统弹窗盖住屏幕时，
-    ///   降级模式反而更不容易被卡住。
+    /// - 系统 UI 的处理**已经与 AX 路径对齐**：指针下最上层是系统 UI 就一律不动。
+    ///   （早期版本会跳过系统 UI 继续往后找，那会在悬停通知横幅时误抢它下面窗口的焦点。）
     private func hitTestViaWindowList(_ point: CGPoint) -> WindowRef? {
         // 菜单栏与 Dock 区域没有 layer-0 窗口，但「窗口的矩形」会延伸到那里
         // （实测：Dock 下方的点会命中一个被 Dock 盖住的窗口）。可见区域之外一律不算命中，
@@ -351,7 +434,13 @@ final class WindowProbe: WindowProbing {
         for windowID in infoOrder {
             guard let info = infoCache[windowID] else { continue }
             guard info.layer == 0, info.isOnScreen, info.bounds.contains(point) else { continue }
-            if isSystemUI(pid: info.ownerPID) { continue }
+            // 指针下最上层的窗口是系统 UI（通知横幅、控制中心等）→ **不动**，与 AX 路径一致。
+            //
+            // 这里曾经是 `continue`（跳过系统 UI 继续往下找）。那样会造成**误抢焦点**：
+            // 悬停在通知横幅上时，命中的是横幅下面那个普通窗口，引擎会把它切到前台。
+            // AX 路径只会拿到最上层元素 → 判为系统 UI → 不动。两条路径行为不一致本身就是缺陷，
+            // 而且「不动」是安全的那一侧 ——「不误抢焦点」是这个项目的第一条硬性标准。
+            if isSystemUI(pid: info.ownerPID) { return nil }
             return makeRef(windowID: windowID, pid: info.ownerPID, info: info)
         }
         return nil

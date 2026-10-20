@@ -22,5 +22,6 @@ runStepTests()
 runTextEditingGuardTests()
 runIconStateTests()
 runDriverTests()
+runTickGateTests()
 
 exit(TestHarness.shared.finishAndExitCode())

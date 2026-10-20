@@ -71,6 +71,29 @@ final class FocusEngine {
         return evaluate(sample: sample, now: clock())
     }
 
+    /// tick 是否还有事可做。
+    ///
+    /// 这个判断是为了让上层**别在没事的时候重跑判定** —— 每次判定都会打跨进程 AX 查询，
+    /// 30Hz 跑起来实测每秒约 81 次，把前台 App 的主线程压住（真实现象：它的窗口拖不动）。
+    ///
+    /// - 正在等 dwell → 必须推进计时
+    /// - 上一次是「指针下没有窗口」→ **可能只是被「指针还在动」的闸门挡了**，
+    ///   指针停下后必须再试一次，否则永远解析不出当前窗口（这里踩过死锁）
+    /// - 其余情况（已确认停在已聚焦窗口 / 被排除 / 冷却中）→ 指针没动就不会变
+    var needsTick: Bool {
+        guard let last = lastDecision else { return true }
+        switch last {
+        case .pending:
+            return true                       // 正在等 dwell，必须推进计时
+        case .ignore(let reason):
+            // ⚠️ .noWindow 必须继续 tick：它**可能只是被「指针还在动」的闸门挡了**。
+            // 不继续的话，指针停下后引擎永远解析不出窗口 —— 悬停切焦点会静默失效（死锁）。
+            return reason == .noWindow
+        case .act:
+            return false                      // 动作已给出，等 driver 去执行；指针不动就没什么可推进
+        }
+    }
+
     /// 鼠标静止时由定时器驱动，让 dwell 能到点。
     @discardableResult
     func tick() -> FocusDecision {

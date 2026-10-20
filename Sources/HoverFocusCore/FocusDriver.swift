@@ -146,6 +146,16 @@ final class FocusDriver {
         // 双保险：即使 Timer 的 invalidate 和某次已经排队的回调擦肩而过，
         // stop() 之后也绝不进 engine、绝不回调 delegate。
         guard isStarted else { return }
+
+        // ⚠️ tick 的唯一作用是「指针静止时把 dwell 推到点」。
+        // 没有在计时 → 指针没动的情况下状态不会变，重跑判定毫无收益，却有实打实的代价：
+        // 每次判定都会打跨进程 AX 查询（命中测试 / 焦点窗口 / 全屏 / 隐藏），
+        // 30Hz 实测合起来 **每秒约 81 次**，全部落在**正在使用的那款 App** 身上，
+        // 把它的主线程压住 —— 真实现象就是**它的窗口拖不动**
+        // （自绘标题栏的 App 走 drag-trait 手势，对主线程响应很敏感）。
+        //
+        // 所以：只在真的在等 dwell 时才 tick。
+        guard engine.needsTick else { return }
         process(engine.tick())
     }
 
