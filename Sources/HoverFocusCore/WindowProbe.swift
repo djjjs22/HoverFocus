@@ -185,6 +185,11 @@ final class WindowProbe: WindowProbing {
         // 返回 nil 会让引擎走 clearPending（安全侧），不会误抢焦点。
         if now - lastMoveAt < Self.settleDelay { return nil }
 
+        // 通知横幅 / 通知中心面板优先于一切：指针压在它上面就直接返回它
+        // （layer ≠ 0 → 引擎判 .nonNormalWindow → 不动），连 AX 都不用打。
+        // 理由见 notificationOverlay 的注释 —— 聚焦会让未读消息被标成已读，不可逆。
+        if let overlay = notificationOverlay(atQuartzPoint: point) { return overlay }
+
         if let cached = hitCache,
            now - cached.at < Self.hitCacheTTL,
            hypot(point.x - cached.point.x, point.y - cached.point.y) < Self.moveTolerance {
@@ -214,6 +219,64 @@ final class WindowProbe: WindowProbing {
         if let bundleID = app.bundleIdentifier, Self.systemUIBundleIDs.contains(bundleID) { return true }
         if let name = app.localizedName, Self.systemUINames.contains(name) { return true }
         return false
+    }
+
+    // MARK: - 通知类窗口守卫
+
+    /// 通知横幅 / 通知中心面板的 owner 名称。
+    /// 用 `WindowInfo.ownerName` 直接比对，避免每次命中测试都去查进程信息。
+    private static let notificationOwnerNames: Set<String> = [
+        "通知中心", "Notification Center",
+        "UserNotificationCenter", "com.apple.notificationcenterui",
+    ]
+
+    /// 指针下的通知类窗口（横幅 / 通知中心面板）。
+    ///
+    /// **为什么需要这道守卫**：很多 IM（企业微信、微信）**一旦被聚焦就把消息标成已读**。
+    /// 用户刻意留着不回的未读提醒会当场消失，而且不可逆 —— 他本来只是在看通知内容。
+    /// 把鼠标移到通知横幅上就替他「读掉」消息，是比「不好用」严重得多的伤害。
+    ///
+    /// **为什么不能只靠 `isSystemUI`**：那道守卫看的是**命中测试返回的那个窗口**的 pid。
+    /// 而通知横幅不一定会参与 AX 命中测试 —— 这时 AX 返回的是横幅**下面那个 App** 的元素，
+    /// 守卫看到的是普通 App，于是照样切焦点。所以必须用窗口列表再交叉校验一次：
+    /// 指针下只要压着通知类窗口，就把它返出去（layer ≠ 0 → 引擎判 .nonNormalWindow → 不动）。
+    ///
+    /// 先查这一层还有个附带好处：命中通知横幅时**连 AX 都不用打**。
+    private func notificationOverlay(atQuartzPoint point: CGPoint) -> WindowRef? {
+        refreshWindowInfoIfNeeded()
+        // 通知中心除了横幅，还有一个**铺满屏幕的不可见背板窗口**。
+        // 把背板当成横幅会把所有悬停都挡掉，所以面积超过可见区 60% 的一律跳过 ——
+        // 真正的横幅（约 360×180）和展开的面板都远小于这个比例。
+        let screenArea = CoordinateSpace.screenVisibleFrame(containingQuartzPoint: point)
+            .map { $0.width * $0.height } ?? 0
+
+        for windowID in infoOrder {
+            guard let info = infoCache[windowID] else { continue }
+            guard Self.isNotificationOverlay(ownerName: info.ownerName,
+                                             bounds: info.bounds,
+                                             isOnScreen: info.isOnScreen,
+                                             screenArea: screenArea,
+                                             point: point) else { continue }
+            return makeRef(windowID: windowID, pid: info.ownerPID, info: info)
+        }
+        return nil
+    }
+
+    /// 纯判定：这个窗口是不是「指针下应当挡住悬停切焦点」的通知类窗口。
+    ///
+    /// 抽成静态纯函数是为了**可单测** —— 真实的通知横幅在测试环境里造不出来，
+    /// 而这条规则一旦写错，用户未读消息会被静默标成已读（不可逆），值得单独测。
+    static func isNotificationOverlay(ownerName: String?,
+                                      bounds: CGRect,
+                                      isOnScreen: Bool,
+                                      screenArea: CGFloat,
+                                      point: CGPoint) -> Bool {
+        guard isOnScreen else { return false }
+        guard let name = ownerName, notificationOwnerNames.contains(name) else { return false }
+        guard bounds.contains(point) else { return false }
+        // 跳过铺满屏幕的不可见背板
+        if screenArea > 0, bounds.width * bounds.height > screenArea * 0.6 { return false }
+        return true
     }
 
     /// 隐藏状态变化极少（只有 cmd-H），但**原来每次判定都查一遍** ——

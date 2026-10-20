@@ -56,6 +56,7 @@ cd HoverFocus && make install
 | 拖拽 | 拖窗口、拖选文字时 —— 拖拽中改叠放会直接取消拖拽 |
 | 全屏 | 前台 App 全屏时 —— 看视频、演示、共享屏幕时不该乱跳 |
 | 文本编辑 | Finder 重命名、表格改单元格时 —— 失焦会取消编辑，白输入 |
+| 通知横幅 | 指针在通知横幅 / 通知中心上时 —— 很多 IM 一被聚焦就把消息标成已读，**不可逆** |
 
 修饰键里 Caps Lock 和 fn 不算意图修饰键，按住它们切窗口是正常操作。
 文本编辑守卫只挡单行输入框，多行文本区故意不挡 —— 否则在聊天框里打字时永远切不了窗口。
@@ -87,7 +88,7 @@ cd HoverFocus && make install
 ```bash
 make app     # 构建 build/HoverFocus.app
 make test    # 跑测试
-make dmg     # 打包 dist/HoverFocus-0.1.1.dmg
+make dmg     # 打包 dist/HoverFocus-0.1.2.dmg
 make dmg-verify  # 挂载 dmg 实测：结构 / 签名 / 拖拽后能不能跑
 ```
 

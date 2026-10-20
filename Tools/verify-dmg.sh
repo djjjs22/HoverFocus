@@ -17,7 +17,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-DMG="${1:-$ROOT/dist/HoverFocus-0.1.1.dmg}"
+DMG="${1:-$ROOT/dist/HoverFocus-0.1.2.dmg}"
 
 if [ ! -f "$DMG" ]; then
   echo "找不到 dmg：$DMG" >&2
@@ -35,7 +35,11 @@ T="$(mktemp -d /tmp/hf-verify.XXXXXX)"
 D="$(mktemp -d /tmp/hf-drag.XXXXXX)"
 MOUNTED=0
 cleanup() {
-  if [ "$MOUNTED" -eq 1 ]; then diskutil unmount "$T" force >/dev/null 2>&1 || true; fi
+  # ⚠️ 必须用 eject 而不是 unmount：`diskutil unmount` 只卸载文件系统，
+  # **磁盘映像仍然挂着**（/dev/disk 不释放、hdiutil info 里那条记录还在）。
+  # 积累几条之后，有的系统路径会认为这个 dmg「已经挂着了」，
+  # 用户双击它就没反应 —— 这个故障真实发生过（见 docs/VERIFICATION.md §15）。
+  if [ "$MOUNTED" -eq 1 ]; then diskutil eject "$T" force >/dev/null 2>&1 || true; fi
   rm -rf "$T" "$D"
 }
 trap cleanup EXIT

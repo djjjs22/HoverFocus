@@ -23,5 +23,6 @@ runTextEditingGuardTests()
 runIconStateTests()
 runDriverTests()
 runTickGateTests()
+runNotificationGuardTests()
 
 exit(TestHarness.shared.finishAndExitCode())

@@ -2,7 +2,7 @@
 #  HoverFocus DMG 打包脚本
 #
 #  用法：
-#    bash Scripts/make-dmg.sh              # 打包 → dist/HoverFocus-0.1.1.dmg
+#    bash Scripts/make-dmg.sh              # 打包 → dist/HoverFocus-0.1.2.dmg
 #    bash Scripts/make-dmg.sh --build      # 先重新构建 app 再打包
 #    bash Scripts/make-dmg.sh --open       # 打包后保持挂载（排障用）
 #    bash Scripts/make-dmg.sh --yes        # 覆盖已存在的 dmg 不询问
